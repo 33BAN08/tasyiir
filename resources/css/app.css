@@ -1,0 +1,142 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: 'Cairo';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/cairo-arabic-400-normal.woff2') format('woff2');
+  unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF;
+}
+@font-face {
+  font-family: 'Cairo';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/cairo-arabic-600-normal.woff2') format('woff2');
+  unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF;
+}
+@font-face {
+  font-family: 'Cairo';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/cairo-arabic-700-normal.woff2') format('woff2');
+  unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF;
+}
+@font-face {
+  font-family: 'Cairo';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/cairo-latin-400-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Cairo';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/cairo-latin-600-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Cairo';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/cairo-latin-700-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/ibm-plex-mono-latin-400-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/ibm-plex-mono-latin-600-normal.woff2') format('woff2');
+}
+
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-feature-settings: 'tnum' 1;
+}
+
+/* Scrollbar styling (kept subtle, cross-browser best-effort) */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: theme('colors.ink.200') transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background-color: theme('colors.ink.200');
+  border-radius: 8px;
+}
+
+/* Utility: numerals stay LTR inside RTL layout (dates, amounts, counters) */
+.ltr-nums {
+  direction: ltr;
+  unicode-bidi: isolate;
+  display: inline-block;
+}
+
+@layer components {
+  .focus-ring {
+    @apply outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors duration-150 focus-ring disabled:opacity-50 disabled:pointer-events-none;
+  }
+  .btn-primary {
+    @apply btn bg-brand-600 text-white hover:bg-brand-700 shadow-sm;
+  }
+  .btn-secondary {
+    @apply btn bg-white text-ink-700 border border-ink-200 hover:bg-ink-50;
+  }
+  .btn-ghost {
+    @apply btn text-ink-600 hover:bg-ink-100;
+  }
+  .btn-danger {
+    @apply btn bg-white text-red-600 border border-red-200 hover:bg-red-50;
+  }
+  .btn-icon {
+    @apply inline-flex items-center justify-center rounded-lg p-2 text-ink-500 hover:bg-ink-100 hover:text-ink-700 transition-colors focus-ring;
+  }
+
+  .card {
+    @apply bg-white border border-ink-100 rounded-2xl shadow-card;
+  }
+
+  .input {
+    @apply w-full rounded-xl border border-ink-200 bg-white ps-10 pe-3 py-2.5 text-sm text-ink-800 placeholder:text-ink-400 focus-ring focus:border-brand-500;
+  }
+  .select {
+    @apply w-full rounded-xl border border-ink-200 bg-white px-3 py-2.5 text-sm text-ink-800 focus-ring focus:border-brand-500;
+  }
+
+  .table-head-cell {
+    @apply px-4 py-3 text-start text-xs font-semibold uppercase tracking-wide text-ink-500;
+  }
+  .table-cell {
+    @apply px-4 py-3.5 text-sm text-ink-700;
+  }
+
+  .nav-link {
+    @apply flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-ink-300 hover:bg-white/5 hover:text-white transition-colors;
+  }
+  .nav-link.active {
+    @apply bg-brand-500/15 text-brand-300;
+  }
+}

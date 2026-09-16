@@ -1,0 +1,21 @@
+{
+  "name": "planzeen",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "build:css": "tailwindcss -i resources/css/app.css -o public/build/app.css --minify",
+    "watch:css": "tailwindcss -i resources/css/app.css -o public/build/app.css --watch",
+    "sync:vendor": "node scripts/sync-vendor-assets.mjs && cp resources/js/app.js public/build/app.js",
+    "build": "npm run sync:vendor && npm run build:css"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.13"
+  },
+  "dependencies": {
+    "alpinejs": "^3.14.1",
+    "chart.js": "^4.4.4",
+    "lucide-static": "^0.451.0",
+    "@fontsource/cairo": "^5.0.20",
+    "@fontsource/ibm-plex-mono": "^5.0.19"
+  }
+}

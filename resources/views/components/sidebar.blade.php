@@ -1,0 +1,103 @@
+@php
+    $sections = [
+        [
+            'label' => 'إدارة المركز',
+            'items' => [
+                ['label' => 'الطلاب', 'href' => '/students', 'icon' => 'users'],
+                ['label' => 'الأساتذة', 'href' => '/teachers', 'icon' => 'graduation-cap'],
+                ['label' => 'الدورات', 'href' => '/courses', 'icon' => 'book-open'],
+                ['label' => 'المجموعات', 'href' => '/groups', 'icon' => 'users-round'],
+                ['label' => 'التسجيلات', 'href' => '/enrollments', 'icon' => 'clipboard-list'],
+                ['label' => 'الحضور', 'href' => '/attendance', 'icon' => 'calendar-check'],
+                ['label' => 'الجدول', 'href' => '/schedule', 'icon' => 'calendar-days'],
+            ],
+        ],
+        [
+            'label' => 'المالية',
+            'items' => [
+                ['label' => 'أداءات الطلاب', 'href' => '/payments', 'icon' => 'wallet'],
+                ['label' => 'المصاريف', 'href' => '/expenses', 'icon' => 'receipt'],
+                ['label' => 'أجور الأساتذة', 'href' => '/salaries', 'icon' => 'banknote'],
+            ],
+        ],
+        [
+            'label' => 'التقارير',
+            'items' => [
+                ['label' => 'التقارير', 'href' => '/reports', 'icon' => 'bar-chart-3'],
+                ['label' => 'الإحصائيات', 'href' => '/statistics', 'icon' => 'line-chart'],
+            ],
+        ],
+        [
+            'label' => 'النظام',
+            'items' => [
+                ['label' => 'الإشعارات', 'href' => '/notifications', 'icon' => 'bell'],
+                ['label' => 'الإعدادات', 'href' => '/settings', 'icon' => 'settings'],
+            ],
+        ],
+    ];
+@endphp
+
+<!-- Mobile backdrop -->
+<div
+    x-show="$store.ui.sidebarOpen"
+    x-cloak
+    x-transition:enter="ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+    x-transition:leave="ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+    x-on:click="$store.ui.sidebarOpen = false"
+    class="fixed inset-0 z-40 bg-ink-950/50 lg:hidden"
+    style="display:none;"
+></div>
+
+<aside
+    class="fixed inset-y-0 start-0 z-50 w-72 flex flex-col bg-ink-950 text-white transition-transform duration-300 lg:translate-x-0"
+    :class="$store.ui.sidebarOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'"
+>
+    <!-- Brand -->
+    <div class="flex items-center gap-3 px-5 h-20 border-b border-white/10 shrink-0">
+        <span class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-brand-500 text-white font-extrabold text-lg shrink-0">P</span>
+        <div class="leading-tight">
+            <p class="font-extrabold text-lg tracking-wide">PLANZEEN</p>
+            <p class="text-[11px] text-ink-400">مركز إدارة وتطوير التعليم</p>
+        </div>
+        <button type="button" class="btn-icon text-ink-300 hover:text-white hover:bg-white/10 ms-auto lg:hidden" x-on:click="$store.ui.sidebarOpen = false" aria-label="إغلاق القائمة">
+            <x-icon name="x" class="w-5 h-5" />
+        </button>
+    </div>
+
+    <!-- Nav -->
+    <nav class="flex-1 overflow-y-auto px-3 py-4 space-y-6">
+        <a href="/dashboard" class="nav-link {{ is_active_route('/dashboard') ? 'active' : '' }}">
+            <x-icon name="layout-dashboard" class="w-[18px] h-[18px]" />
+            الرئيسية
+        </a>
+
+        @foreach ($sections as $section)
+            <div>
+                <p class="px-3 mb-1.5 text-[11px] font-bold uppercase tracking-wider text-ink-500">{{ $section['label'] }}</p>
+                <div class="space-y-1">
+                    @foreach ($section['items'] as $item)
+                        <a href="{{ $item['href'] }}" class="nav-link {{ is_active_route($item['href']) ? 'active' : '' }}">
+                            <x-icon :name="$item['icon']" class="w-[18px] h-[18px]" />
+                            {{ $item['label'] }}
+                        </a>
+                    @endforeach
+                </div>
+            </div>
+        @endforeach
+    </nav>
+
+    <!-- Footer / user -->
+    <div class="border-t border-white/10 p-4 shrink-0">
+        <p class="text-[11px] text-ink-500 px-1 mb-2.5">مركز النجاح للتكوين</p>
+        <div class="flex items-center gap-3">
+            <x-avatar name="محمد" size="md" />
+            <div class="flex-1 min-w-0">
+                <p class="text-sm font-semibold text-white truncate">محمد</p>
+                <p class="text-xs text-ink-400 truncate">مدير المركز</p>
+            </div>
+            <button type="button" class="btn-icon text-ink-400 hover:text-white hover:bg-white/10" data-toast="تم تسجيل الخروج (تجريبي)" aria-label="تسجيل الخروج">
+                <x-icon name="log-out" class="w-[18px] h-[18px]" />
+            </button>
+        </div>
+    </div>
+</aside>
