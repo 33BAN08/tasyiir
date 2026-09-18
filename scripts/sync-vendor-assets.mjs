@@ -16,11 +16,11 @@ function copy(src, dest) {
   copyFileSync(src, dest);
 }
 
-// --- Alpine.js ---
-copy(join(nm, 'alpinejs/dist/cdn.min.js'), join(root, 'public/build/alpine.js'));
-
 // --- Chart.js ---
-copy(join(nm, 'chart.js/dist/chart.umd.min.js'), join(root, 'public/build/chart.js'));
+// Lives in public/vendor (not public/build) because `vite build` empties its
+// own output directory, which would delete anything else stored there.
+// Alpine is no longer vendored here: Livewire 3 ships and boots its own Alpine.
+copy(join(nm, 'chart.js/dist/chart.umd.min.js'), join(root, 'public/vendor/chart.js'));
 
 // --- Cairo + IBM Plex Mono fonts (Arabic-supporting weights only) ---
 const fontsDir = join(root, 'public/fonts');
@@ -52,7 +52,7 @@ const icons = [
   'credit-card', 'wallet-cards', 'sun', 'moon', 'sparkles', 'timer', 'hash', 'id-card',
   'square-check-big', 'square', 'minus', 'circle-dot', 'lightbulb', 'megaphone', 'wrench',
   'droplet', 'zap', 'package', 'briefcase-business', 'notebook-pen', 'lock', 'languages',
-  'layers', 'list-checks', 'percent', 'arrow-left', 'arrow-right',
+  'layers', 'list-checks', 'percent', 'arrow-left', 'arrow-right', 'pause', 'play', 'shield-off',
 ];
 // lucide-static renamed a few icons; map our stable template-facing names to the current file.
 const aliases = {

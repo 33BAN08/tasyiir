@@ -3,21 +3,6 @@
 @section('title', 'الإعدادات')
 
 @section('content')
-@php
-    $users = [
-        ['name' => 'محمد', 'role' => 'مدير المركز', 'email' => 'mohamed@planzeen.ma', 'status' => 'نشط'],
-        ['name' => 'أستاذ يوسف الفاسي', 'role' => 'أستاذ', 'email' => 'y.fassi@planzeen.ma', 'status' => 'نشط'],
-        ['name' => 'سعاد بنعمر', 'role' => 'إدارية استقبال', 'email' => 's.benomar@planzeen.ma', 'status' => 'نشط'],
-        ['name' => 'أستاذة مريم الغازي', 'role' => 'أستاذة', 'email' => 'm.ghazi@planzeen.ma', 'status' => 'متوقف'],
-    ];
-    $roles = [
-        ['name' => 'مدير المركز', 'desc' => 'صلاحية كاملة على جميع وحدات النظام', 'count' => 1],
-        ['name' => 'إدارية / استقبال', 'desc' => 'الطلاب، التسجيلات، المدفوعات، الحضور', 'count' => 2],
-        ['name' => 'أستاذ', 'desc' => 'الحضور والجدول الخاص بمجموعاته فقط', 'count' => 15],
-        ['name' => 'محاسب', 'desc' => 'المصاريف، أجور الأساتذة، التقارير المالية', 'count' => 0],
-    ];
-    $statusTone = ['نشط' => 'success', 'متوقف' => 'neutral'];
-@endphp
 
 <x-page-header title="الإعدادات" subtitle="إدارة إعدادات المركز والحساب والنظام" />
 
@@ -28,12 +13,13 @@
             @foreach ([
                 ['key' => 'center', 'label' => 'معلومات المركز', 'icon' => 'building-2'],
                 ['key' => 'account', 'label' => 'الحساب', 'icon' => 'user-round-plus'],
-                ['key' => 'users', 'label' => 'المستخدمون', 'icon' => 'users'],
-                ['key' => 'roles', 'label' => 'الصلاحيات', 'icon' => 'shield-check'],
+                ['key' => 'users', 'label' => 'المستخدمون', 'icon' => 'users', 'can' => 'manage-users'],
+                ['key' => 'roles', 'label' => 'الصلاحيات', 'icon' => 'shield-check', 'can' => 'manage-users'],
                 ['key' => 'notifications', 'label' => 'الإشعارات', 'icon' => 'bell'],
                 ['key' => 'language', 'label' => 'اللغة', 'icon' => 'languages'],
                 ['key' => 'appearance', 'label' => 'المظهر', 'icon' => 'palette'],
             ] as $item)
+                @continue (isset($item['can']) && ! auth()->user()->can($item['can']))
                 <button
                     type="button"
                     x-on:click="tab = '{{ $item['key'] }}'"
@@ -51,103 +37,25 @@
     <div class="lg:col-span-3 space-y-6">
         <!-- معلومات المركز -->
         <div x-show="tab === 'center'" class="card p-6">
-            <h3 class="font-bold text-ink-800 mb-5">معلومات المركز</h3>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div class="sm:col-span-2">
-                    <label class="block text-sm font-medium text-ink-700 mb-1.5">اسم المركز</label>
-                    <input type="text" class="input ps-3" value="مركز النجاح للتكوين" />
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-ink-700 mb-1.5">رقم الهاتف</label>
-                    <input type="text" class="input ps-3 ltr-nums" value="0522-11-22-33" />
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-ink-700 mb-1.5">البريد الإلكتروني</label>
-                    <input type="email" class="input ps-3" value="contact@najah-center.ma" />
-                </div>
-                <div class="sm:col-span-2">
-                    <label class="block text-sm font-medium text-ink-700 mb-1.5">العنوان</label>
-                    <input type="text" class="input ps-3" value="شارع الحسن الثاني، الدار البيضاء" />
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-ink-700 mb-1.5">العملة</label>
-                    <select class="select"><option>درهم مغربي (MAD)</option></select>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-ink-700 mb-1.5">التوقيت</label>
-                    <select class="select"><option>(GMT+1) الدار البيضاء</option></select>
-                </div>
-            </div>
-            <div class="flex justify-end mt-6">
-                <button type="button" class="btn-primary" data-toast="تم حفظ معلومات المركز (تجريبي)"><x-icon name="check" class="w-4 h-4" /> حفظ التغييرات</button>
-            </div>
+            <livewire:settings.center-profile />
         </div>
 
         <!-- الحساب -->
         <div x-show="tab === 'account'" class="card p-6">
-            <h3 class="font-bold text-ink-800 mb-5">الحساب الشخصي</h3>
-            <div class="flex items-center gap-4 mb-6">
-                <x-avatar name="محمد" size="xl" />
-                <div>
-                    <button type="button" class="btn-secondary" data-toast="تم تغيير الصورة (تجريبي)">تغيير الصورة</button>
-                    <p class="text-xs text-ink-400 mt-1.5">JPG أو PNG بحجم أقصى 2MB</p>
-                </div>
-            </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div><label class="block text-sm font-medium text-ink-700 mb-1.5">الاسم الكامل</label><input type="text" class="input ps-3" value="محمد" /></div>
-                <div><label class="block text-sm font-medium text-ink-700 mb-1.5">المنصب</label><input type="text" class="input ps-3" value="مدير المركز" /></div>
-                <div><label class="block text-sm font-medium text-ink-700 mb-1.5">البريد الإلكتروني</label><input type="email" class="input ps-3" value="mohamed@planzeen.ma" /></div>
-                <div><label class="block text-sm font-medium text-ink-700 mb-1.5">رقم الهاتف</label><input type="text" class="input ps-3 ltr-nums" value="0661-22-33-44" /></div>
-                <div><label class="block text-sm font-medium text-ink-700 mb-1.5">كلمة المرور الجديدة</label><input type="password" class="input ps-3" placeholder="••••••••" /></div>
-                <div><label class="block text-sm font-medium text-ink-700 mb-1.5">تأكيد كلمة المرور</label><input type="password" class="input ps-3" placeholder="••••••••" /></div>
-            </div>
-            <div class="flex justify-end mt-6">
-                <button type="button" class="btn-primary" data-toast="تم حفظ بيانات الحساب (تجريبي)"><x-icon name="check" class="w-4 h-4" /> حفظ التغييرات</button>
-            </div>
+            <livewire:settings.account />
         </div>
 
-        <!-- المستخدمون -->
-        <div x-show="tab === 'users'" class="card overflow-hidden">
-            <div class="flex items-center justify-between px-6 py-4 border-b border-ink-100">
-                <h3 class="font-bold text-ink-800">المستخدمون</h3>
-                <button type="button" class="btn-primary" data-toast="فتح نموذج دعوة مستخدم (تجريبي)"><x-icon name="plus" class="w-4 h-4" /> إضافة مستخدم</button>
+        @can('manage-users')
+            <!-- المستخدمون -->
+            <div x-show="tab === 'users'" class="card overflow-hidden">
+                <livewire:settings.team />
             </div>
-            <div class="divide-y divide-ink-100">
-                @foreach ($users as $u)
-                    <div class="flex items-center gap-3 px-6 py-4">
-                        <x-avatar :name="$u['name']" size="sm" />
-                        <div class="flex-1 min-w-0">
-                            <p class="font-semibold text-ink-800 text-sm">{{ $u['name'] }}</p>
-                            <p class="text-xs text-ink-400">{{ $u['role'] }} · {{ $u['email'] }}</p>
-                        </div>
-                        <x-status-badge :label="$u['status']" :tone="$statusTone[$u['status']] ?? 'neutral'" />
-                        <button type="button" class="btn-icon" data-toast="فتح نموذج تعديل المستخدم (تجريبي)" aria-label="تعديل"><x-icon name="pencil" class="w-4 h-4" /></button>
-                    </div>
-                @endforeach
-            </div>
-        </div>
 
-        <!-- الصلاحيات -->
-        <div x-show="tab === 'roles'" class="card overflow-hidden">
-            <div class="flex items-center justify-between px-6 py-4 border-b border-ink-100">
-                <h3 class="font-bold text-ink-800">الأدوار والصلاحيات</h3>
-                <button type="button" class="btn-secondary" data-toast="فتح نموذج إنشاء دور (تجريبي)"><x-icon name="plus" class="w-4 h-4" /> دور جديد</button>
+            <!-- الصلاحيات -->
+            <div x-show="tab === 'roles'" class="card overflow-hidden">
+                <livewire:settings.roles />
             </div>
-            <div class="divide-y divide-ink-100">
-                @foreach ($roles as $r)
-                    <div class="flex items-center gap-3 px-6 py-4">
-                        <span class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-violet-50 text-violet-600 shrink-0">
-                            <x-icon name="shield-check" class="w-5 h-5" />
-                        </span>
-                        <div class="flex-1 min-w-0">
-                            <p class="font-semibold text-ink-800 text-sm">{{ $r['name'] }}</p>
-                            <p class="text-xs text-ink-400">{{ $r['desc'] }}</p>
-                        </div>
-                        <span class="ltr-nums text-xs font-semibold text-ink-500 shrink-0">{{ $r['count'] }} مستخدم</span>
-                    </div>
-                @endforeach
-            </div>
-        </div>
+        @endcan
 
         <!-- الإشعارات -->
         <div x-show="tab === 'notifications'" class="card p-6">

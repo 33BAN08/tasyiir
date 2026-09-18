@@ -1,6 +1,6 @@
 @php
     $class = $class ?? 'w-5 h-5';
-    $path = BASE_PATH . '/public/icons/' . $name . '.svg';
+    $path = public_path('icons/' . $name . '.svg');
     $svg = is_file($path) ? file_get_contents($path) : '';
     // Force our own sizing/stroke classes onto the root <svg> tag from lucide-static.
     if ($svg) {

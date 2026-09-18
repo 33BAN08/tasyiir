@@ -32,3 +32,28 @@ document.addEventListener('click', (e) => {
     window.Alpine.store('toasts').push(message, type);
   }
 });
+
+// Real toasts dispatched from Livewire components (Students CRUD, etc.) and
+// from a `session('toast')` flash message rendered once on full page loads.
+document.addEventListener('livewire:init', () => {
+  Livewire.on('toast', ({ message, type }) => {
+    window.Alpine.store('toasts').push(message, type || 'success');
+  });
+
+  // A 419 means the session behind this page is gone (expired, or the DB was
+  // reseeded). Reloading sends the user to /login instead of Livewire's raw
+  // "PAGE EXPIRED" dialog.
+  Livewire.hook('request', ({ fail }) => {
+    fail(({ status, preventDefault }) => {
+      if (status === 419) {
+        preventDefault();
+        window.location.reload();
+      }
+    });
+  });
+
+  if (window.__flashToast) {
+    window.Alpine.store('toasts').push(window.__flashToast);
+    window.__flashToast = null;
+  }
+});

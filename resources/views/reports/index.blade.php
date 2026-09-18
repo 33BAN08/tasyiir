@@ -4,19 +4,10 @@
 
 @section('content')
 @php
-    $sections = [
-        ['title' => 'تقارير الطلاب', 'icon' => 'users', 'tone' => 'brand', 'stats' => ['إجمالي الطلاب' => '250', 'تسجيلات جديدة (شهرياً)' => '32', 'معدل الاستمرارية' => '86%']],
-        ['title' => 'التسجيلات', 'icon' => 'clipboard-list', 'tone' => 'blue', 'stats' => ['هذا الشهر' => '32', 'إجمالي التسجيلات' => '54', 'متوسط قيمة التسجيل' => '985 MAD']],
-        ['title' => 'الإيرادات', 'icon' => 'banknote', 'tone' => 'violet', 'stats' => ['إيرادات شتنبر' => '224,500 MAD', 'نسبة التحصيل' => '81%', 'مبالغ متبقية' => '38,900 MAD']],
-        ['title' => 'المصاريف', 'icon' => 'receipt', 'tone' => 'rose', 'stats' => ['مصاريف شتنبر' => '21,269 MAD', 'أكبر فئة' => 'الكراء', 'المعدل اليومي' => '709 MAD']],
-        ['title' => 'أجور الأساتذة', 'icon' => 'wallet', 'tone' => 'amber', 'stats' => ['إجمالي الأجور' => '29,540 MAD', 'المدفوع' => '22,180 MAD', 'المتبقي' => '7,360 MAD']],
-        ['title' => 'الحضور', 'icon' => 'calendar-check', 'tone' => 'teal', 'stats' => ['معدل الحضور العام' => '88%', 'حالات الغياب' => '24', 'حالات التأخر' => '11']],
-    ];
     $toneClasses = [
         'brand' => 'bg-brand-50 text-brand-600', 'blue' => 'bg-blue-50 text-blue-600', 'violet' => 'bg-violet-50 text-violet-600',
         'rose' => 'bg-rose-50 text-rose-600', 'amber' => 'bg-amber-50 text-amber-600', 'teal' => 'bg-teal-50 text-teal-600',
     ];
-    $revenue = \App\Support\Mock\Dashboard::revenueMonths();
 @endphp
 
 <x-page-header title="التقارير" subtitle="تقارير شاملة حول جميع أنشطة المركز">

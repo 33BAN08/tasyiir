@@ -3,30 +3,23 @@
 @section('title', 'الإحصائيات')
 
 @section('content')
-@php
-    $growth = \App\Support\Mock\Dashboard::studentGrowth();
-    $revenue = \App\Support\Mock\Dashboard::revenueMonths();
-    $courses = \App\Support\Mock\Courses::all();
-    $teachers = \App\Support\Mock\Teachers::all();
-    usort($courses, fn ($a, $b) => $b['students'] <=> $a['students']);
-    $topCourses = array_slice($courses, 0, 6);
-    usort($teachers, fn ($a, $b) => $b['hours'] <=> $a['hours']);
-    $topTeachers = array_slice($teachers, 0, 6);
-@endphp
 
 <x-page-header title="الإحصائيات" subtitle="تحليلات معمقة حول أداء المركز">
-    <select class="select sm:w-40">
-        <option>آخر 6 أشهر</option>
-        <option>آخر 3 أشهر</option>
-        <option>السنة الحالية</option>
-    </select>
+    <form method="GET" action="{{ route('statistics.index') }}">
+        <select name="months" class="select sm:w-40" onchange="this.form.submit()" aria-label="الفترة">
+            @foreach ($periods as $value => $label)
+                <option value="{{ $value }}" @selected($period === $value)>{{ $label }}</option>
+            @endforeach
+        </select>
+    </form>
 </x-page-header>
 
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-    <x-stat-card icon="users" label="نمو عدد الطلاب" value="+42%" tone="brand" :trend="42" trendLabel="منذ أبريل" />
-    <x-stat-card icon="clipboard-list" label="اتجاه التسجيلات" value="+78%" tone="blue" :trend="78" trendLabel="منذ أبريل" />
-    <x-stat-card icon="banknote" label="اتجاه الإيرادات" value="+20%" tone="violet" :trend="20" trendLabel="منذ أبريل" />
-    <x-stat-card icon="percent" label="نسبة تحصيل المدفوعات" value="81%" tone="amber" />
+    @php $fmt = fn ($t) => $t === null ? '—' : (($t >= 0 ? '+' : '') . $t . '%'); @endphp
+    <x-stat-card icon="users" label="نمو عدد الطلاب" :value="$fmt($trends['students'])" tone="brand" :trend="$trends['students']" :trendLabel="$since" />
+    <x-stat-card icon="clipboard-list" label="اتجاه التسجيلات" :value="$fmt($trends['enrollments'])" tone="blue" :trend="$trends['enrollments']" :trendLabel="$since" />
+    <x-stat-card icon="banknote" label="اتجاه الإيرادات" :value="$fmt($trends['revenue'])" tone="violet" :trend="$trends['revenue']" :trendLabel="$since" />
+    <x-stat-card icon="percent" label="نسبة تحصيل المدفوعات" :value="$collection['rate'] . '%'" tone="amber" />
 </div>
 
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
@@ -35,7 +28,7 @@
 </div>
 
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-    <x-chart-container id="revenueTrendChart" title="اتجاه الإيرادات" subtitle="آخر 6 أشهر (MAD)" />
+    <x-chart-container id="revenueTrendChart" title="اتجاه الإيرادات" subtitle="{{ $periods[$period] }} (MAD)" />
     <x-chart-container id="collectionRateChart" title="نسبة تحصيل المدفوعات" subtitle="المؤدى مقابل المتبقي" height="260px" />
 </div>
 
@@ -43,8 +36,8 @@
     <div class="card p-5">
         <h3 class="text-sm font-bold text-ink-800 mb-4">شعبية الدورات (بعدد الطلاب)</h3>
         <div class="space-y-3.5">
-            @foreach ($topCourses as $c)
-                @php $pct = round($c['students'] / $topCourses[0]['students'] * 100); @endphp
+            @forelse ($topCourses as $c)
+                @php $pct = $topCourses[0]['students'] > 0 ? round($c['students'] / $topCourses[0]['students'] * 100) : 0; @endphp
                 <div>
                     <div class="flex items-center justify-between text-sm mb-1">
                         <span class="font-medium text-ink-700">{{ $c['name'] }}</span>
@@ -54,15 +47,17 @@
                         <div class="h-full rounded-full bg-blue-500" style="width: {{ $pct }}%"></div>
                     </div>
                 </div>
-            @endforeach
+            @empty
+                <p class="text-sm text-ink-400">لا توجد دورات بعد.</p>
+            @endforelse
         </div>
     </div>
 
     <div class="card p-5">
         <h3 class="text-sm font-bold text-ink-800 mb-4">حمولة الأساتذة (ساعات / أسبوع)</h3>
         <div class="space-y-3.5">
-            @foreach ($topTeachers as $t)
-                @php $pct = round($t['hours'] / $topTeachers[0]['hours'] * 100); @endphp
+            @forelse ($topTeachers as $t)
+                @php $pct = $topTeachers[0]['hours'] > 0 ? round($t['hours'] / $topTeachers[0]['hours'] * 100) : 0; @endphp
                 <div>
                     <div class="flex items-center justify-between text-sm mb-1">
                         <span class="font-medium text-ink-700">{{ $t['name'] }}</span>
@@ -72,7 +67,9 @@
                         <div class="h-full rounded-full bg-violet-500" style="width: {{ $pct }}%"></div>
                     </div>
                 </div>
-            @endforeach
+            @empty
+                <p class="text-sm text-ink-400">لا يوجد أساتذة بعد.</p>
+            @endforelse
         </div>
     </div>
 </div>
@@ -101,7 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     new Chart(document.getElementById('enrollmentTrendChart'), {
         type: 'bar',
-        data: { labels: growthLabels, datasets: [{ label: 'تسجيلات جديدة', data: {!! json_encode($growth['new']) !!}, backgroundColor: '#8b5cf6', borderRadius: 6 }] },
+        data: { labels: growthLabels, datasets: [{ label: 'تسجيلات جديدة', data: {!! json_encode($enrollments['count']) !!}, backgroundColor: '#8b5cf6', borderRadius: 6 }] },
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { reverse: true } } },
     });
 
@@ -113,7 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     new Chart(document.getElementById('collectionRateChart'), {
         type: 'doughnut',
-        data: { labels: ['مؤدى', 'متبقي'], datasets: [{ data: [81, 19], backgroundColor: ['#10b981', '#fde68a'] }] },
+        data: { labels: ['مؤدى', 'متبقي'], datasets: [{ data: {!! json_encode([$collection['paid'], $collection['remaining']]) !!}, backgroundColor: ['#10b981', '#fde68a'] }] },
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, cutout: '70%' },
     });
 });

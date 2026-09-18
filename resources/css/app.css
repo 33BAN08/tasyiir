@@ -91,6 +91,15 @@ body {
   display: inline-block;
 }
 
+/* On table cells the inline-block above would break table layout (the cell
+   stops being a cell and every column after it shifts). Keep them real cells,
+   right-aligned so they stay under their RTL headers. */
+td.ltr-nums,
+th.ltr-nums {
+  display: table-cell;
+  text-align: right;
+}
+
 @layer components {
   .focus-ring {
     @apply outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white;

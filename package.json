@@ -1,21 +1,21 @@
 {
   "name": "planzeen",
   "private": true,
-  "version": "0.1.0",
+  "type": "module",
   "scripts": {
-    "build:css": "tailwindcss -i resources/css/app.css -o public/build/app.css --minify",
-    "watch:css": "tailwindcss -i resources/css/app.css -o public/build/app.css --watch",
-    "sync:vendor": "node scripts/sync-vendor-assets.mjs && cp resources/js/app.js public/build/app.js",
-    "build": "npm run sync:vendor && npm run build:css"
+    "dev": "vite",
+    "build": "vite build"
   },
   "devDependencies": {
-    "tailwindcss": "^3.4.13"
-  },
-  "dependencies": {
-    "alpinejs": "^3.14.1",
-    "chart.js": "^4.4.4",
+    "@fontsource/cairo": "^5.3.0",
+    "@fontsource/ibm-plex-mono": "^5.3.0",
+    "autoprefixer": "^10.4.2",
+    "axios": "^1.11.0",
+    "chart.js": "^4.5.1",
+    "laravel-vite-plugin": "^2.0.0",
     "lucide-static": "^0.451.0",
-    "@fontsource/cairo": "^5.0.20",
-    "@fontsource/ibm-plex-mono": "^5.0.19"
+    "postcss": "^8.4.31",
+    "tailwindcss": "^3.4.13",
+    "vite": "^7.0.7"
   }
 }

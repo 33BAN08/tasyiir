@@ -4,9 +4,13 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#059669" />
-    <title>@yield('title', 'الرئيسية') · PlanZeen</title>
+    <title>@yield('title', $title ?? 'الرئيسية') · TASYIIR</title>
     <link rel="icon" href="/favicon.ico" sizes="any">
-    <link rel="stylesheet" href="/build/app.css">
+    @if (session('toast'))
+        <script>window.__flashToast = @json(session('toast'));</script>
+    @endif
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @livewireStyles
 </head>
 <body class="h-full bg-ink-50 font-sans text-ink-800 antialiased" x-data>
 
@@ -20,7 +24,8 @@
         </main>
 
         <footer class="px-4 sm:px-6 lg:p-8 pb-6 text-center text-xs text-ink-400">
-            © {{ date('Y') }} PlanZeen — مركز النجاح للتكوين. جميع الحقوق محفوظة.
+            © {{ date('Y') }} <span class="font-semibold text-ink-500">TASYIIR</span> — {{ auth()->user()?->tenant?->name }}. جميع الحقوق محفوظة.
+            <span class="block sm:inline sm:ms-2">صُنع بواسطة <span class="font-semibold text-ink-500">IAM Agency</span></span>
         </footer>
     </div>
 
@@ -41,9 +46,8 @@
         </div>
     </x-modal>
 
-    <script defer src="/build/app.js"></script>
-    <script defer src="/build/alpine.js"></script>
-    <script defer src="/build/chart.js"></script>
+    <script defer src="/vendor/chart.js"></script>
+    @livewireScripts
     @yield('scripts')
 </body>
 </html>
