@@ -2,10 +2,11 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "planzeen",
+      "name": "tasyiir",
       "runtimeExecutable": "php",
-      "runtimeArgs": ["artisan", "serve", "--port=8000"],
-      "port": 8000
+      "runtimeArgs": ["artisan", "serve", "--host=127.0.0.1", "--port=8001"],
+      "port": 8001,
+      "autoPort": false
     }
   ]
 }

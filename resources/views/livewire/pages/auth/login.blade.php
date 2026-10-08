@@ -17,6 +17,13 @@ new #[Layout('layouts.guest')] class extends Component
 
         Session::regenerate();
 
+        // A language picked on the login page is the most recent explicit choice:
+        // make it the account's saved language rather than letting an older
+        // saved preference silently override it after login.
+        if ($locale = Session::get('locale')) {
+            auth()->user()->update(['locale' => $locale]);
+        }
+
         // Platform admins live in /admin; everyone else in the tenant app.
         $home = auth()->user()->isPlatformAdmin() ? route('admin.signups', absolute: false) : route('dashboard', absolute: false);
 
@@ -25,14 +32,14 @@ new #[Layout('layouts.guest')] class extends Component
 }; ?>
 
 <div>
-    <h1 class="text-lg font-bold text-ink-900 mb-1">تسجيل الدخول</h1>
-    <p class="text-sm text-ink-500 mb-6">أدخل بيانات حسابك للوصول إلى لوحة التحكم</p>
+    <h1 class="text-lg font-bold text-ink-900 mb-1">{{ __('تسجيل الدخول') }}</h1>
+    <p class="text-sm text-ink-500 mb-6">{{ __('أدخل بيانات حسابك للوصول إلى لوحة التحكم') }}</p>
 
     <x-auth-session-status class="mb-4" :status="session('status')" />
 
     <form wire:submit="login" class="space-y-4">
         <div>
-            <label for="email" class="block text-sm font-semibold text-ink-700 mb-1.5">البريد الإلكتروني</label>
+            <label for="email" class="block text-sm font-semibold text-ink-700 mb-1.5">{{ __('البريد الإلكتروني') }}</label>
             <div class="relative">
                 <span class="absolute inset-y-0 start-0 flex items-center ps-3 text-ink-400">
                     <x-icon name="mail" class="w-4 h-4" />
@@ -44,7 +51,7 @@ new #[Layout('layouts.guest')] class extends Component
         </div>
 
         <div>
-            <label for="password" class="block text-sm font-semibold text-ink-700 mb-1.5">كلمة المرور</label>
+            <label for="password" class="block text-sm font-semibold text-ink-700 mb-1.5">{{ __('كلمة المرور') }}</label>
             <div class="relative">
                 <span class="absolute inset-y-0 start-0 flex items-center ps-3 text-ink-400">
                     <x-icon name="lock" class="w-4 h-4" />
@@ -58,14 +65,14 @@ new #[Layout('layouts.guest')] class extends Component
         <label for="remember" class="flex items-center gap-2 cursor-pointer">
             <input wire:model="form.remember" id="remember" type="checkbox" name="remember"
                 class="rounded border-ink-300 text-brand-600 focus:ring-brand-500" />
-            <span class="text-sm text-ink-600">تذكرني</span>
+            <span class="text-sm text-ink-600">{{ __('تذكرني') }}</span>
         </label>
 
         <button type="submit" class="btn-primary w-full justify-center" wire:loading.attr="disabled" wire:target="login">
-            <span wire:loading.remove wire:target="login">تسجيل الدخول</span>
-            <span wire:loading wire:target="login">جارٍ الدخول...</span>
+            <span wire:loading.remove wire:target="login">{{ __('تسجيل الدخول') }}</span>
+            <span wire:loading wire:target="login">{{ __('جارٍ الدخول...') }}</span>
         </button>
     </form>
 
-    <p class="mt-5 text-center text-xs text-ink-400">مركز جديد؟ <a href="{{ route('register-center') }}" class="font-semibold text-brand-600 hover:text-brand-700">سجّل مركزك</a></p>
+    <p class="mt-5 text-center text-xs text-ink-400">{{ __('مركز جديد؟') }} <a href="{{ route('register-center') }}" class="font-semibold text-brand-600 hover:text-brand-700">{{ __('سجّل مركزك') }}</a></p>
 </div>

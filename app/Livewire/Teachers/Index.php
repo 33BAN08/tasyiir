@@ -61,16 +61,19 @@ class Index extends Component
         ];
     }
 
-    protected array $validationAttributes = [
-        'name' => 'اسم الأستاذ',
-        'specialty' => 'التخصص',
-        'phone' => 'رقم الهاتف',
-        'hours' => 'ساعات التدريس',
-        'salary_type' => 'نوع الأجر',
-        'fixed_salary' => 'الراتب الثابت',
-        'commission_rate' => 'نسبة العمولة',
-        'status' => 'الحالة',
-    ];
+    protected function validationAttributes(): array
+    {
+        return [
+            'name' => __('اسم الأستاذ'),
+            'specialty' => __('التخصص'),
+            'phone' => __('رقم الهاتف'),
+            'hours' => __('ساعات التدريس'),
+            'salary_type' => __('نوع الأجر'),
+            'fixed_salary' => __('الراتب الثابت'),
+            'commission_rate' => __('نسبة العمولة'),
+            'status' => __('الحالة'),
+        ];
+    }
 
     public function updatedSalaryType(): void
     {
@@ -141,10 +144,10 @@ class Index extends Component
 
         if ($this->editingId) {
             Teacher::findOrFail($this->editingId)->update($data);
-            $this->dispatch('toast', message: 'تم تحديث بيانات الأستاذ بنجاح');
+            $this->dispatch('toast', message: __('تم تحديث بيانات الأستاذ بنجاح'));
         } else {
             Teacher::create($data);
-            $this->dispatch('toast', message: 'تمت إضافة الأستاذ بنجاح');
+            $this->dispatch('toast', message: __('تمت إضافة الأستاذ بنجاح'));
         }
 
         $this->closeModal();
@@ -164,7 +167,7 @@ class Index extends Component
     {
         if ($this->confirmingDeleteId) {
             Teacher::findOrFail($this->confirmingDeleteId)->delete();
-            $this->dispatch('toast', message: 'تم حذف الأستاذ بنجاح');
+            $this->dispatch('toast', message: __('تم حذف الأستاذ بنجاح'));
         }
         $this->confirmingDeleteId = null;
         $this->resetPage();
@@ -196,6 +199,6 @@ class Index extends Component
             'specialties' => $specialties,
             'statuses' => self::STATUSES,
             'salaryTypes' => Teacher::SALARY_TYPES,
-        ])->extends('layouts.app')->section('content')->title('الأساتذة');
+        ])->extends('layouts.app')->section('content')->title(__('الأساتذة'));
     }
 }

@@ -27,7 +27,7 @@ class Index extends Component
     public function markAllRead(): void
     {
         $count = Notification::visibleTo(auth()->user())->unread()->update(['read' => true]);
-        $this->dispatch('toast', message: $count ? 'تم تعليم الكل كمقروء' : 'لا توجد إشعارات غير مقروءة');
+        $this->dispatch('toast', message: $count ? __('تم تعليم الكل كمقروء') : __('لا توجد إشعارات غير مقروءة'));
     }
 
     public function render()
@@ -42,6 +42,6 @@ class Index extends Component
         return view('livewire.notifications.index', [
             'notifications' => $notifications,
             'unread' => Notification::visibleTo($user)->unread()->count(),
-        ])->extends('layouts.app')->section('content')->title('الإشعارات');
+        ])->extends('layouts.app')->section('content')->title(__('الإشعارات'));
     }
 }

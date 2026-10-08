@@ -50,7 +50,7 @@ class Index extends Component
 
         $this->dispatch('notification-created');
 
-        $this->dispatch('toast', message: 'تم تسجيل دفعة الأجرة بنجاح');
+        $this->dispatch('toast', message: __('تم تسجيل دفعة الأجرة بنجاح'));
         $this->closePay();
     }
 
@@ -77,6 +77,6 @@ class Index extends Component
             'rows' => $rows,
             'stats' => $stats,
             'paying' => $paying,
-        ])->extends('layouts.app')->section('content')->title('أجور الأساتذة');
+        ])->extends('layouts.app')->section('content')->title(__('أجور الأساتذة'));
     }
 }

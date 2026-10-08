@@ -10,9 +10,7 @@ class Bell extends Component
 {
     /** Any module that creates a notification dispatches this so the badge updates at once. */
     #[On('notification-created')]
-    public function refresh(): void
-    {
-    }
+    public function refresh(): void {}
 
     public function markRead(int $id): void
     {

@@ -62,15 +62,18 @@ class Index extends Component
         ];
     }
 
-    protected array $validationAttributes = [
-        'name' => 'اسم المجموعة',
-        'course_id' => 'الدورة',
-        'teacher_id' => 'الأستاذ',
-        'capacity' => 'السعة',
-        'room' => 'القاعة',
-        'schedule' => 'التوقيت',
-        'status' => 'الحالة',
-    ];
+    protected function validationAttributes(): array
+    {
+        return [
+            'name' => __('اسم المجموعة'),
+            'course_id' => __('الدورة'),
+            'teacher_id' => __('الأستاذ'),
+            'capacity' => __('السعة'),
+            'room' => __('القاعة'),
+            'schedule' => __('التوقيت'),
+            'status' => __('الحالة'),
+        ];
+    }
 
     public function updatingSearch(): void
     {
@@ -128,10 +131,10 @@ class Index extends Component
 
         if ($this->editingId) {
             Group::findOrFail($this->editingId)->update($data);
-            $this->dispatch('toast', message: 'تم تحديث بيانات المجموعة بنجاح');
+            $this->dispatch('toast', message: __('تم تحديث بيانات المجموعة بنجاح'));
         } else {
             Group::create($data);
-            $this->dispatch('toast', message: 'تم إنشاء المجموعة بنجاح');
+            $this->dispatch('toast', message: __('تم إنشاء المجموعة بنجاح'));
         }
 
         $this->closeModal();
@@ -151,7 +154,7 @@ class Index extends Component
     {
         if ($this->confirmingDeleteId) {
             Group::findOrFail($this->confirmingDeleteId)->delete();
-            $this->dispatch('toast', message: 'تم حذف المجموعة بنجاح');
+            $this->dispatch('toast', message: __('تم حذف المجموعة بنجاح'));
         }
         $this->confirmingDeleteId = null;
         $this->resetPage();
@@ -185,6 +188,6 @@ class Index extends Component
             'courses' => $courses,
             'teachers' => $teachers,
             'statuses' => self::STATUSES,
-        ])->extends('layouts.app')->section('content')->title('المجموعات');
+        ])->extends('layouts.app')->section('content')->title(__('المجموعات'));
     }
 }

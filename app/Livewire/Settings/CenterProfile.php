@@ -28,13 +28,16 @@ class CenterProfile extends Component
         'address' => ['nullable', 'string', 'max:255'],
     ];
 
-    protected array $validationAttributes = [
-        'name' => 'اسم المركز',
-        'tagline' => 'الوصف المختصر',
-        'phone' => 'رقم الهاتف',
-        'email' => 'البريد الإلكتروني',
-        'address' => 'العنوان',
-    ];
+    protected function validationAttributes(): array
+    {
+        return [
+            'name' => __('اسم المركز'),
+            'tagline' => __('الوصف المختصر'),
+            'phone' => __('رقم الهاتف'),
+            'email' => __('البريد الإلكتروني'),
+            'address' => __('العنوان'),
+        ];
+    }
 
     public function mount(): void
     {
@@ -67,7 +70,7 @@ class CenterProfile extends Component
         ]);
         $tenant->save();
 
-        $this->dispatch('toast', message: 'تم حفظ معلومات المركز بنجاح');
+        $this->dispatch('toast', message: __('تم حفظ معلومات المركز بنجاح'));
     }
 
     public function render()

@@ -1,4 +1,4 @@
-// PlanZeen — small Alpine.js glue code shared across the app.
+// TASYIIR — small Alpine.js glue code shared across the app.
 // Runs before Alpine boots (registers global stores) and after (page-level helpers).
 
 document.addEventListener('alpine:init', () => {

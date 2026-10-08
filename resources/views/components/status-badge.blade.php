@@ -16,5 +16,5 @@
     @if ($dot === '1' || $dot === 1 || $dot === true)
         <span class="w-1.5 h-1.5 rounded-full" style="background-color: var(--dot)"></span>
     @endif
-    {{ $label }}
+    {{ __($label) }}
 </span>

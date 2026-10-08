@@ -5,9 +5,7 @@ namespace App\Livewire\Admin;
 use App\Models\CenterSignupRequest;
 use App\Models\Tenant;
 use App\Models\User;
-use App\Support\Permissions;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -45,28 +43,19 @@ class SignupRequests extends Component
 
         // Someone may have registered this email since the request was filed.
         if (User::withoutGlobalScopes()->where('email', $request->owner_email)->exists()) {
-            $this->dispatch('toast', message: 'يوجد حساب بهذا البريد الإلكتروني بالفعل؛ لا يمكن قبول الطلب.');
+            $this->dispatch('toast', message: __('يوجد حساب بهذا البريد الإلكتروني بالفعل؛ لا يمكن قبول الطلب.'));
 
             return;
         }
 
         DB::transaction(function () use ($request) {
-            $tenant = Tenant::create([
-                'name' => $request->center_name,
-                'slug' => self::uniqueSlug($request->center_name),
-                'settings' => [],
-            ]);
-
-            $owner = User::create([
-                'tenant_id' => $tenant->id,
-                'name' => $request->owner_name,
-                'email' => $request->owner_email,
-                // Hashed at signup. The 'hashed' cast leaves an existing hash untouched (Hash::isHashed).
-                'password' => $request->password,
-                'status' => 'نشط',
-                'email_verified_at' => now(),
-            ]);
-            $owner->assignRole(Permissions::OWNER_ROLE);
+            // Same code path as the local-install command (Tenant::provision).
+            ['tenant' => $tenant] = Tenant::provision(
+                $request->center_name,
+                $request->owner_name,
+                $request->owner_email,
+                $request->password, // already hashed at signup; the cast leaves it as-is
+            );
 
             $request->forceFill([
                 'status' => 'approved',
@@ -76,7 +65,7 @@ class SignupRequests extends Component
             ])->save();
         });
 
-        $this->dispatch('toast', message: "تم تفعيل المركز «{$request->center_name}»");
+        $this->dispatch('toast', message: __('تم تفعيل المركز «:name»', ['name' => $request->center_name]));
     }
 
     public function openReject(int $id): void
@@ -110,19 +99,13 @@ class SignupRequests extends Component
         ])->save();
 
         $this->cancelReject();
-        $this->dispatch('toast', message: 'تم رفض الطلب');
+        $this->dispatch('toast', message: __('تم رفض الطلب'));
     }
 
-    /** ASCII slug from the (usually Arabic) center name, suffixed on collision. */
+    /** Kept for callers; the implementation lives on the model now. */
     public static function uniqueSlug(string $name): string
     {
-        $base = Str::slug($name, '-', 'ar') ?: 'center';
-        $slug = $base;
-        for ($i = 2; Tenant::where('slug', $slug)->exists(); $i++) {
-            $slug = "{$base}-{$i}";
-        }
-
-        return $slug;
+        return Tenant::uniqueSlug($name);
     }
 
     public function render()
@@ -138,6 +121,6 @@ class SignupRequests extends Component
             'requests' => $requests,
             'counts' => $counts,
             'rejecting' => $this->rejectingId ? CenterSignupRequest::find($this->rejectingId) : null,
-        ])->extends('layouts.admin')->section('content')->title('طلبات تسجيل المراكز');
+        ])->extends('layouts.admin')->section('content')->title(__('طلبات تسجيل المراكز'));
     }
 }

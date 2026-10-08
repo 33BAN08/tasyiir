@@ -38,16 +38,19 @@ class Team extends Component
         ];
     }
 
-    protected array $validationAttributes = [
-        'name' => 'الاسم الكامل',
-        'email' => 'البريد الإلكتروني',
-        'password' => 'كلمة المرور',
-        'role_id' => 'الدور',
-    ];
+    protected function validationAttributes(): array
+    {
+        return [
+            'name' => __('الاسم الكامل'),
+            'email' => __('البريد الإلكتروني'),
+            'password' => __('كلمة المرور'),
+            'role_id' => __('الدور'),
+        ];
+    }
 
     protected function messages(): array
     {
-        return ['role_id.in' => 'الدور المختار غير متاح لهذا المركز.'];
+        return ['role_id.in' => __('الدور المختار غير متاح لهذا المركز.')];
     }
 
     public function mount(): void
@@ -125,7 +128,7 @@ class Team extends Component
             $user->save();
             $user->syncRoles([$role]);
 
-            $this->dispatch('toast', message: 'تم تحديث بيانات المستخدم بنجاح');
+            $this->dispatch('toast', message: __('تم تحديث بيانات المستخدم بنجاح'));
         } else {
             $user = User::create([
                 // Security-critical: the new account belongs to the creating owner's center.
@@ -138,7 +141,7 @@ class Team extends Component
             ]);
             $user->syncRoles([$role]);
 
-            $this->dispatch('toast', message: 'تمت إضافة المستخدم بنجاح');
+            $this->dispatch('toast', message: __('تمت إضافة المستخدم بنجاح'));
         }
 
         $this->closeModal();
@@ -154,7 +157,7 @@ class Team extends Component
         $user->status = $user->isActive() ? 'متوقف' : 'نشط';
         $user->save();
 
-        $this->dispatch('toast', message: $user->isActive() ? 'تم تفعيل الحساب' : 'تم إيقاف الحساب');
+        $this->dispatch('toast', message: $user->isActive() ? __('تم تفعيل الحساب') : __('تم إيقاف الحساب'));
     }
 
     public function render()

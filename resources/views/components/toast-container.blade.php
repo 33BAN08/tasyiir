@@ -14,7 +14,7 @@
                 <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 6 9 17l-5-5"/></svg>
             </span>
             <span x-text="toast.message"></span>
-            <button type="button" class="ms-auto text-ink-400 hover:text-white" x-on:click="$store.toasts.dismiss(toast.id)" aria-label="إغلاق">✕</button>
+            <button type="button" class="ms-auto text-ink-400 hover:text-white" x-on:click="$store.toasts.dismiss(toast.id)" aria-label="{{ __('إغلاق') }}">✕</button>
         </div>
     </template>
 </div>

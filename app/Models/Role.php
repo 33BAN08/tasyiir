@@ -45,9 +45,9 @@ class Role extends SpatieRole
             return Permissions::BUILT_IN_ROLES[$this->name]['description'] ?? '';
         }
 
-        $labels = $this->permissions->pluck('name')->map(fn ($p) => Permissions::LABELS[$p] ?? $p);
+        $labels = $this->permissions->pluck('name')->map(fn ($p) => __(Permissions::LABELS[$p] ?? $p));
 
-        return $labels->isEmpty() ? 'بدون صلاحيات' : $labels->implode('، ');
+        return $labels->isEmpty() ? __('بدون صلاحيات') : $labels->implode(__('، '));
     }
 
     /** Built-in roles plus the given tenant's own custom roles. */

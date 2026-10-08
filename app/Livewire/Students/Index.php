@@ -62,15 +62,18 @@ class Index extends Component
         ];
     }
 
-    protected array $validationAttributes = [
-        'name' => 'الاسم الكامل',
-        'phone' => 'رقم الهاتف',
-        'city' => 'المدينة',
-        'guardian_phone' => 'هاتف ولي الأمر',
-        'course_id' => 'الدورة',
-        'enrollment_status' => 'حالة التسجيل',
-        'financial_status' => 'الحالة المالية',
-    ];
+    protected function validationAttributes(): array
+    {
+        return [
+            'name' => __('الاسم الكامل'),
+            'phone' => __('رقم الهاتف'),
+            'city' => __('المدينة'),
+            'guardian_phone' => __('هاتف ولي الأمر'),
+            'course_id' => __('الدورة'),
+            'enrollment_status' => __('حالة التسجيل'),
+            'financial_status' => __('الحالة المالية'),
+        ];
+    }
 
     public function mount(): void
     {
@@ -145,12 +148,12 @@ class Index extends Component
         if ($this->editingId) {
             $student = Student::findOrFail($this->editingId);
             $student->update($data);
-            $this->dispatch('toast', message: 'تم تحديث بيانات الطالب بنجاح');
+            $this->dispatch('toast', message: __('تم تحديث بيانات الطالب بنجاح'));
         } else {
             $data['registered_at'] = now()->toDateString();
             $student = Student::create($data);
             $this->enrollPrompt = ['id' => $student->id, 'name' => $student->name];
-            $this->dispatch('toast', message: 'تمت إضافة الطالب بنجاح');
+            $this->dispatch('toast', message: __('تمت إضافة الطالب بنجاح'));
         }
 
         $this->closeModal();
@@ -175,7 +178,7 @@ class Index extends Component
     {
         if ($this->confirmingDeleteId) {
             Student::findOrFail($this->confirmingDeleteId)->delete();
-            $this->dispatch('toast', message: 'تم حذف الطالب بنجاح');
+            $this->dispatch('toast', message: __('تم حذف الطالب بنجاح'));
         }
         $this->confirmingDeleteId = null;
         $this->resetPage();
@@ -207,6 +210,6 @@ class Index extends Component
             'students' => $students,
             'stats' => $stats,
             'courses' => $courses,
-        ])->extends('layouts.app')->section('content')->title('الطلاب');
+        ])->extends('layouts.app')->section('content')->title(__('الطلاب'));
     }
 }

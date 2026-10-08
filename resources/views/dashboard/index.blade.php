@@ -1,15 +1,15 @@
 @extends('layouts.app')
 
-@section('title', 'الرئيسية')
+@section('title', __('الرئيسية'))
 
 @section('content')
 @php
     $statusTone = ['مكتمل' => 'success', 'جزئي' => 'warning', 'غير مؤدي' => 'danger'];
 @endphp
 
-<x-page-header :title="'مرحباً بك مجدداً، ' . auth()->user()->name . ' 👋'" :subtitle="'إليك نظرة سريعة على نشاط مركزك اليوم — ' . ar_date()">
-    @can('manage-students') <a href="/students" class="btn-secondary"><x-icon name="plus" class="w-4 h-4" /> إضافة طالب</a> @endcan
-    @can('manage-enrollments') <a href="/enrollments" class="btn-primary"><x-icon name="clipboard-list" class="w-4 h-4" /> تسجيل جديد</a> @endcan
+<x-page-header :title="__('مرحباً بك مجدداً، ') . auth()->user()->name . ' 👋'" :subtitle="__('إليك نظرة سريعة على نشاط مركزك اليوم — ') . ar_date()">
+    @can('manage-students') <a href="/students" class="btn-secondary"><x-icon name="plus" class="w-4 h-4" /> {{ __('إضافة طالب') }}</a> @endcan
+    @can('manage-enrollments') <a href="/enrollments" class="btn-primary"><x-icon name="clipboard-list" class="w-4 h-4" /> {{ __('تسجيل جديد') }}</a> @endcan
 </x-page-header>
 
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-6">
@@ -20,29 +20,29 @@
 
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
     <div class="lg:col-span-2">
-        <x-chart-container id="dashboardRevenueChart" title="نظرة عامة على الإيرادات" subtitle="الإيرادات والمصاريف — آخر 6 أشهر">
+        <x-chart-container id="dashboardRevenueChart" title="{{ __('نظرة عامة على الإيرادات') }}" subtitle="{{ __('الإيرادات والمصاريف — آخر 6 أشهر') }}">
             <span class="text-xs font-semibold text-ink-400">MAD</span>
         </x-chart-container>
     </div>
-    <x-chart-container id="dashboardGrowthChart" title="نمو الطلاب" subtitle="آخر 6 أشهر" />
+    <x-chart-container id="dashboardGrowthChart" title="{{ __('نمو الطلاب') }}" subtitle="{{ __('آخر 6 أشهر') }}" />
 </div>
 
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
     <!-- Recent enrollments -->
     <div class="lg:col-span-2 card overflow-hidden">
         <div class="flex items-center justify-between px-5 py-4 border-b border-ink-100">
-            <h3 class="text-sm font-bold text-ink-800">أحدث التسجيلات</h3>
-            @can('manage-enrollments') <a href="/enrollments" class="text-xs font-semibold text-brand-600 hover:text-brand-700">عرض الكل</a> @endcan
+            <h3 class="text-sm font-bold text-ink-800">{{ __('أحدث التسجيلات') }}</h3>
+            @can('manage-enrollments') <a href="/enrollments" class="text-xs font-semibold text-brand-600 hover:text-brand-700">{{ __('عرض الكل') }}</a> @endcan
         </div>
         <div class="hidden sm:block overflow-x-auto">
             <table class="w-full">
                 <thead class="bg-ink-50 border-b border-ink-100">
                     <tr>
-                        <th class="table-head-cell">الطالب</th>
-                        <th class="table-head-cell">الدورة</th>
-                        <th class="table-head-cell">المجموعة</th>
-                        <th class="table-head-cell">التاريخ</th>
-                        <th class="table-head-cell">الحالة</th>
+                        <th class="table-head-cell">{{ __('الطالب') }}</th>
+                        <th class="table-head-cell">{{ __('الدورة') }}</th>
+                        <th class="table-head-cell">{{ __('المجموعة') }}</th>
+                        <th class="table-head-cell">{{ __('التاريخ') }}</th>
+                        <th class="table-head-cell">{{ __('الحالة') }}</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-ink-100">
@@ -60,7 +60,7 @@
                             <td class="table-cell"><x-status-badge :label="$r->status" :tone="$statusTone[$r->status] ?? 'neutral'" /></td>
                         </tr>
                     @empty
-                        <tr><td colspan="5" class="table-cell text-center text-ink-400 py-8">لا توجد تسجيلات بعد.</td></tr>
+                        <tr><td colspan="5" class="table-cell text-center text-ink-400 py-8">{{ __('لا توجد تسجيلات بعد.') }}</td></tr>
                     @endforelse
                 </tbody>
             </table>
@@ -76,7 +76,7 @@
                     <x-status-badge :label="$r->status" :tone="$statusTone[$r->status] ?? 'neutral'" />
                 </a>
             @empty
-                <p class="p-6 text-center text-sm text-ink-400">لا توجد تسجيلات بعد.</p>
+                <p class="p-6 text-center text-sm text-ink-400">{{ __('لا توجد تسجيلات بعد.') }}</p>
             @endforelse
         </div>
     </div>
@@ -84,8 +84,8 @@
     <!-- Upcoming classes -->
     <div class="card overflow-hidden">
         <div class="flex items-center justify-between px-5 py-4 border-b border-ink-100">
-            <h3 class="text-sm font-bold text-ink-800">الحصص القادمة اليوم</h3>
-            @can('manage-schedule') <a href="/schedule" class="text-xs font-semibold text-brand-600 hover:text-brand-700">الجدول</a> @endcan
+            <h3 class="text-sm font-bold text-ink-800">{{ __('الحصص القادمة اليوم') }}</h3>
+            @can('manage-schedule') <a href="/schedule" class="text-xs font-semibold text-brand-600 hover:text-brand-700">{{ __('الجدول') }}</a> @endcan
         </div>
         <div class="divide-y divide-ink-100">
             @forelse ($upcoming as $class)
@@ -95,11 +95,11 @@
                     </div>
                     <div class="min-w-0 flex-1">
                         <p class="text-sm font-semibold text-ink-800 truncate">{{ $class->course?->name ?? '—' }}</p>
-                        <p class="text-xs text-ink-400 truncate">{{ $class->teacher?->name ?? '—' }} · {{ $class->room }}</p>
+                        <p class="text-xs text-ink-400 truncate">{{ $class->teacher?->name ?? '—' }} · {{ __($class->room) }}</p>
                     </div>
                 </div>
             @empty
-                <x-empty-state icon="calendar-days" title="لا توجد حصص اليوم" description="تحقق من الجدول الأسبوعي لمعرفة الحصص القادمة." />
+                <x-empty-state icon="calendar-days" title="{{ __('لا توجد حصص اليوم') }}" description="{{ __('تحقق من الجدول الأسبوعي لمعرفة الحصص القادمة.') }}" />
             @endforelse
         </div>
     </div>
@@ -107,21 +107,23 @@
 
 <!-- Quick actions -->
 <div class="card p-5">
-    <h3 class="text-sm font-bold text-ink-800 mb-4">إجراءات سريعة</h3>
+    <h3 class="text-sm font-bold text-ink-800 mb-4">{{ __('إجراءات سريعة') }}</h3>
     <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-        @can('manage-students') <x-quick-action-card icon="user-round-plus" label="إضافة طالب" href="/students" tone="brand" /> @endcan
-        @can('manage-courses-groups-teachers') <x-quick-action-card icon="graduation-cap" label="إضافة أستاذ" href="/teachers" tone="blue" /> @endcan
-        @can('manage-courses-groups-teachers') <x-quick-action-card icon="book-open" label="إنشاء دورة" href="/courses" tone="violet" /> @endcan
-        @can('manage-courses-groups-teachers') <x-quick-action-card icon="users-round" label="إنشاء مجموعة" href="/groups" tone="amber" /> @endcan
-        @can('manage-enrollments') <x-quick-action-card icon="clipboard-list" label="تسجيل طالب" href="/enrollments" tone="rose" /> @endcan
-        @can('manage-schedule') <x-quick-action-card icon="calendar-check" label="إضافة حصة" href="/schedule" tone="teal" /> @endcan
+        @can('manage-students') <x-quick-action-card icon="user-round-plus" label="{{ __('إضافة طالب') }}" href="/students" tone="brand" /> @endcan
+        @can('manage-courses-groups-teachers') <x-quick-action-card icon="graduation-cap" label="{{ __('إضافة أستاذ') }}" href="/teachers" tone="blue" /> @endcan
+        @can('manage-courses-groups-teachers') <x-quick-action-card icon="book-open" label="{{ __('إنشاء دورة') }}" href="/courses" tone="violet" /> @endcan
+        @can('manage-courses-groups-teachers') <x-quick-action-card icon="users-round" label="{{ __('إنشاء مجموعة') }}" href="/groups" tone="amber" /> @endcan
+        @can('manage-enrollments') <x-quick-action-card icon="clipboard-list" label="{{ __('تسجيل طالب') }}" href="/enrollments" tone="rose" /> @endcan
+        @can('manage-schedule') <x-quick-action-card icon="calendar-check" label="{{ __('إضافة حصة') }}" href="/schedule" tone="teal" /> @endcan
     </div>
 </div>
 @endsection
 
 @section('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', () => {
+(() => {
+// Scoped: with wire:navigate every page's script shares one global scope.
+const initCharts = () => {
     if (!window.Chart) return;
     Chart.defaults.font.family = 'Cairo';
 
@@ -132,8 +134,8 @@ document.addEventListener('DOMContentLoaded', () => {
         data: {
             labels: months,
             datasets: [
-                { label: 'الإيرادات', data: {!! json_encode($revenue['revenue']) !!}, backgroundColor: '#10b981', borderRadius: 6, maxBarThickness: 28 },
-                { label: 'المصاريف', data: {!! json_encode($revenue['expenses']) !!}, backgroundColor: '#e5e7eb', borderRadius: 6, maxBarThickness: 28 },
+                { label: {!! json_encode(__('الإيرادات'), JSON_UNESCAPED_UNICODE) !!}, data: {!! json_encode($revenue['revenue']) !!}, backgroundColor: '#10b981', borderRadius: 6, maxBarThickness: 28 },
+                { label: {!! json_encode(__('المصاريف'), JSON_UNESCAPED_UNICODE) !!}, data: {!! json_encode($revenue['expenses']) !!}, backgroundColor: '#e5e7eb', borderRadius: 6, maxBarThickness: 28 },
             ],
         },
         options: {
@@ -147,7 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
         type: 'line',
         data: {
             labels: {!! json_encode($growth['labels'], JSON_UNESCAPED_UNICODE) !!},
-            datasets: [{ label: 'إجمالي الطلاب', data: {!! json_encode($growth['total']) !!}, borderColor: '#059669', backgroundColor: 'rgba(5,150,105,.12)', fill: true, tension: 0.35 }],
+            datasets: [{ label: {!! json_encode(__('إجمالي الطلاب'), JSON_UNESCAPED_UNICODE) !!}, data: {!! json_encode($growth['total']) !!}, borderColor: '#059669', backgroundColor: 'rgba(5,150,105,.12)', fill: true, tension: 0.35 }],
         },
         options: {
             responsive: true, maintainAspectRatio: false,
@@ -155,6 +157,9 @@ document.addEventListener('DOMContentLoaded', () => {
             scales: { x: { reverse: true } },
         },
     });
-});
+};
+// Fires on the first full load and after every wire:navigate visit (DOMContentLoaded only fires on the former).
+document.addEventListener('livewire:navigated', initCharts, { once: true });
+})();
 </script>
 @endsection

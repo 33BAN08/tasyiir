@@ -54,13 +54,16 @@ class Index extends Component
         ];
     }
 
-    protected array $validationAttributes = [
-        'name' => 'اسم الدورة',
-        'level' => 'المستوى',
-        'teacher_id' => 'الأستاذ',
-        'price' => 'السعر',
-        'status' => 'الحالة',
-    ];
+    protected function validationAttributes(): array
+    {
+        return [
+            'name' => __('اسم الدورة'),
+            'level' => __('المستوى'),
+            'teacher_id' => __('الأستاذ'),
+            'price' => __('السعر'),
+            'status' => __('الحالة'),
+        ];
+    }
 
     public function updatingSearch(): void
     {
@@ -115,10 +118,10 @@ class Index extends Component
 
         if ($this->editingId) {
             Course::findOrFail($this->editingId)->update($data);
-            $this->dispatch('toast', message: 'تم تحديث بيانات الدورة بنجاح');
+            $this->dispatch('toast', message: __('تم تحديث بيانات الدورة بنجاح'));
         } else {
             Course::create($data);
-            $this->dispatch('toast', message: 'تم إنشاء الدورة بنجاح');
+            $this->dispatch('toast', message: __('تم إنشاء الدورة بنجاح'));
         }
 
         $this->closeModal();
@@ -138,7 +141,7 @@ class Index extends Component
     {
         if ($this->confirmingDeleteId) {
             Course::findOrFail($this->confirmingDeleteId)->delete();
-            $this->dispatch('toast', message: 'تم حذف الدورة بنجاح');
+            $this->dispatch('toast', message: __('تم حذف الدورة بنجاح'));
         }
         $this->confirmingDeleteId = null;
         $this->resetPage();
@@ -172,6 +175,6 @@ class Index extends Component
             'levels' => $levels,
             'teachers' => $teachers,
             'statuses' => self::STATUSES,
-        ])->extends('layouts.app')->section('content')->title('الدورات');
+        ])->extends('layouts.app')->section('content')->title(__('الدورات'));
     }
 }

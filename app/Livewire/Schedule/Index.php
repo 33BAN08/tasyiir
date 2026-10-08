@@ -7,8 +7,8 @@ use App\Models\Group;
 use App\Models\ScheduleSlot;
 use App\Models\Teacher;
 use Illuminate\Validation\Rule;
-use Livewire\Component;
 use Livewire\Attributes\Url;
+use Livewire\Component;
 
 class Index extends Component
 {
@@ -55,18 +55,21 @@ class Index extends Component
         ];
     }
 
-    protected array $validationAttributes = [
-        'day' => 'اليوم',
-        'time' => 'التوقيت',
-        'course_id' => 'الدورة',
-        'group_id' => 'المجموعة',
-        'teacher_id' => 'الأستاذ',
-        'room' => 'القاعة',
-    ];
+    protected function validationAttributes(): array
+    {
+        return [
+            'day' => __('اليوم'),
+            'time' => __('التوقيت'),
+            'course_id' => __('الدورة'),
+            'group_id' => __('المجموعة'),
+            'teacher_id' => __('الأستاذ'),
+            'room' => __('القاعة'),
+        ];
+    }
 
     protected function messages(): array
     {
-        return ['time.regex' => 'اكتب التوقيت بالشكل 14:00 - 15:30.'];
+        return ['time.regex' => __('اكتب التوقيت بالشكل 14:00 - 15:30.')];
     }
 
     /** Course narrows the group list and suggests the teacher. */
@@ -149,10 +152,10 @@ class Index extends Component
 
         if ($this->editingId) {
             ScheduleSlot::findOrFail($this->editingId)->update($data);
-            $this->dispatch('toast', message: 'تم تحديث الحصة بنجاح');
+            $this->dispatch('toast', message: __('تم تحديث الحصة بنجاح'));
         } else {
             ScheduleSlot::create($data);
-            $this->dispatch('toast', message: 'تمت إضافة الحصة بنجاح');
+            $this->dispatch('toast', message: __('تمت إضافة الحصة بنجاح'));
         }
 
         $this->closeModal();
@@ -189,13 +192,13 @@ class Index extends Component
         $found = false;
 
         if ($data['room'] && ($hit = $candidates->firstWhere('room', $data['room']))) {
-            $this->addError('room', "{$data['room']} محجوزة بالفعل من {$hit->time} يوم {$data['day']} ({$label($hit)}).");
+            $this->addError('room', __(':room محجوزة بالفعل من :time يوم :day (:group).', ['room' => __($data['room']), 'time' => $hit->time, 'day' => __($data['day']), 'group' => $label($hit)]));
             $found = true;
         }
 
         if ($data['teacher_id'] && ($hit = $candidates->firstWhere('teacher_id', (int) $data['teacher_id']))) {
-            $where = $hit->room ? " في {$hit->room}" : '';
-            $this->addError('teacher_id', "الأستاذ لديه حصة أخرى من {$hit->time} يوم {$data['day']} ({$label($hit)}){$where}.");
+            $where = $hit->room ? ' '.__('في :room', ['room' => __($hit->room)]) : '';
+            $this->addError('teacher_id', __('الأستاذ لديه حصة أخرى من :time يوم :day (:group):where.', ['time' => $hit->time, 'day' => __($data['day']), 'group' => $label($hit), 'where' => $where]));
             $found = true;
         }
 
@@ -246,7 +249,7 @@ class Index extends Component
     {
         if ($this->confirmingDeleteId) {
             ScheduleSlot::findOrFail($this->confirmingDeleteId)->delete();
-            $this->dispatch('toast', message: 'تم حذف الحصة بنجاح');
+            $this->dispatch('toast', message: __('تم حذف الحصة بنجاح'));
         }
         $this->confirmingDeleteId = null;
     }
@@ -287,6 +290,6 @@ class Index extends Component
             'rooms' => $rooms,
             'totalSlots' => $slots->count(),
             'conflicts' => $conflicts,
-        ])->extends('layouts.app')->section('content')->title('الجدول');
+        ])->extends('layouts.app')->section('content')->title(__('الجدول'));
     }
 }

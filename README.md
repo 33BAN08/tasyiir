@@ -1,6 +1,6 @@
 # TASYIIR
 
-TASYIIR (created by IAM Agency) is a multi-tenant SaaS for tutoring / language / coaching centers, in Arabic (RTL). It is a real Laravel 12 + Livewire 3 + Tailwind application with authentication, single-database multi-tenancy, per-center staff accounts with roles & permissions (owner / reception / accountant + custom roles), a reviewed public signup flow (`/register-center` → platform-admin approval at `/admin` → the center goes live), and every module — Students, Teachers, Courses, Groups, Enrollments, Attendance, Schedule, Payments (with printable receipts), Expenses, Salaries, Notifications, Dashboard, Reports, Statistics and Settings — running on the database. The migration from the Phase 1 mockup is complete; the mock data layer has been removed.
+TASYIIR (created by IAM Agency) is a multi-tenant SaaS for tutoring / language / coaching centers, in Arabic (RTL, default) with French and English UI. It is a real Laravel 12 + Livewire 3 + Tailwind application with authentication, single-database multi-tenancy, per-center staff accounts with roles & permissions (owner / reception / accountant + custom roles), a reviewed public signup flow (`/register-center` → platform-admin approval at `/admin` → the center goes live), and every module — Students, Teachers, Courses, Groups, Enrollments, Attendance, Schedule, Payments (with printable receipts), Expenses, Salaries, Notifications, Dashboard, Reports, Statistics and Settings — running on the database. The migration from the Phase 1 mockup is complete; the mock data layer has been removed.
 
 See **[SETUP.md](SETUP.md)** for installation, seeded logins (one owner, one receptionist and one accountant per tenant), the module-by-module state and what would be new product surface beyond the original brief.
 
@@ -37,7 +37,9 @@ app/
   Models/Scopes/TenantScope.php
   Support/Analytics.php                     Shared tenant-scoped aggregates (dashboard/reports/statistics/expenses)
   Support/Permissions.php                   Permission catalog + the three built-in roles
-  helpers.php                               mad(), ar_date(), initials(), is_active_route()
+  helpers.php                               mad(), ar_date() (locale-aware), initials(), is_active_route(), is_rtl()
+  Http/Middleware/SetLocale.php             Per-request UI language (user → session → default)
+lang/fr.json, lang/en.json                  UI dictionaries keyed by the Arabic source string
 database/
   migrations/                               Full schema for all modules
   seeders/                                  Permissions + roles, 2 tenants with owner/reception/accountant, full demo data per tenant

@@ -5,16 +5,16 @@
     ];
 @endphp
 <div>
-    <x-page-header title="الإشعارات" subtitle="جميع تنبيهات وأحداث المركز">
+    <x-page-header title="{{ __('الإشعارات') }}" subtitle="{{ __('جميع تنبيهات وأحداث المركز') }}">
         <button type="button" class="btn-secondary" wire:click="markAllRead" @if ($unread === 0) disabled @endif>
-            <x-icon name="check-check" class="w-4 h-4" /> تعليم الكل كمقروء
+            <x-icon name="check-check" class="w-4 h-4" /> {{ __('تعليم الكل كمقروء') }}
         </button>
     </x-page-header>
 
     <div class="card p-1.5 flex items-center gap-1 mb-5 w-fit">
-        <button type="button" wire:click="$set('unreadOnly', false)" class="px-4 py-2 rounded-xl text-sm font-semibold transition-colors {{ ! $unreadOnly ? 'bg-brand-600 text-white' : 'text-ink-500 hover:bg-ink-100' }}">الكل</button>
+        <button type="button" wire:click="$set('unreadOnly', false)" class="px-4 py-2 rounded-xl text-sm font-semibold transition-colors {{ ! $unreadOnly ? 'bg-brand-600 text-white' : 'text-ink-500 hover:bg-ink-100' }}">{{ __('الكل') }}</button>
         <button type="button" wire:click="$set('unreadOnly', true)" class="px-4 py-2 rounded-xl text-sm font-semibold transition-colors {{ $unreadOnly ? 'bg-brand-600 text-white' : 'text-ink-500 hover:bg-ink-100' }}">
-            غير المقروءة
+            {{ __('غير المقروءة') }}
             @if ($unread > 0)
                 <span class="ltr-nums inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 rounded-full bg-red-500 text-white text-[11px] ms-1">{{ $unread }}</span>
             @endif
@@ -45,18 +45,18 @@
                         <span class="text-xs text-ink-400" title="{{ $n->created_at->format('Y-m-d H:i') }}">{{ $n->created_at->diffForHumans() }}</span>
                         @if ($n->category)
                             <span class="text-ink-300">·</span>
-                            <span class="text-xs text-ink-400">{{ $n->category }}</span>
+                            <span class="text-xs text-ink-400">{{ __($n->category) }}</span>
                         @endif
                     </div>
                 </div>
                 @unless ($n->read)
-                    <button type="button" class="btn-icon shrink-0" wire:click="markRead({{ $n->id }})" aria-label="تعليم كمقروء" title="تعليم كمقروء">
+                    <button type="button" class="btn-icon shrink-0" wire:click="markRead({{ $n->id }})" aria-label="{{ __('تعليم كمقروء') }}" title="{{ __('تعليم كمقروء') }}">
                         <x-icon name="check" class="w-4 h-4" />
                     </button>
                 @endunless
             </div>
         @empty
-            <x-empty-state icon="bell" title="لا توجد إشعارات" :description="$unreadOnly ? 'لا توجد إشعارات غير مقروءة حالياً.' : 'لم يُسجَّل أي حدث بعد.'" />
+            <x-empty-state icon="bell" title="{{ __('لا توجد إشعارات') }}" :description="$unreadOnly ? __('لا توجد إشعارات غير مقروءة حالياً.') : __('لم يُسجَّل أي حدث بعد.')" />
         @endforelse
 
         @if ($notifications->hasPages())

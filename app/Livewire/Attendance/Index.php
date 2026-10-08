@@ -77,7 +77,7 @@ class Index extends Component
             $record->fill(['tenant_id' => $tenantId, 'group_id' => (int) $this->groupId, 'state' => $state])->save();
         }
 
-        $this->dispatch('toast', message: 'تم حفظ الحضور بنجاح');
+        $this->dispatch('toast', message: __('تم حفظ الحضور بنجاح'));
     }
 
     protected function roster()
@@ -125,6 +125,6 @@ class Index extends Component
             'roster' => $roster,
             'summary' => $summary,
             'savedCount' => $savedCount,
-        ])->extends('layouts.app')->section('content')->title('الحضور');
+        ])->extends('layouts.app')->section('content')->title(__('الحضور'));
     }
 }

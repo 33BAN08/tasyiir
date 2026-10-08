@@ -34,16 +34,19 @@ class Roles extends Component
         ];
     }
 
-    protected array $validationAttributes = [
-        'name' => 'اسم الدور',
-        'permissions' => 'الصلاحيات',
-    ];
+    protected function validationAttributes(): array
+    {
+        return [
+            'name' => __('اسم الدور'),
+            'permissions' => __('الصلاحيات'),
+        ];
+    }
 
     protected function messages(): array
     {
         return [
-            'permissions.required' => 'اختر صلاحية واحدة على الأقل.',
-            'permissions.min' => 'اختر صلاحية واحدة على الأقل.',
+            'permissions.required' => __('اختر صلاحية واحدة على الأقل.'),
+            'permissions.min' => __('اختر صلاحية واحدة على الأقل.'),
         ];
     }
 
@@ -113,7 +116,7 @@ class Roles extends Component
                 ->when($this->editingId, fn ($q) => $q->where('id', '!=', $this->editingId))
                 ->exists();
         if ($taken) {
-            $this->addError('name', 'يوجد دور بهذا الاسم بالفعل.');
+            $this->addError('name', __('يوجد دور بهذا الاسم بالفعل.'));
 
             return;
         }
@@ -123,7 +126,7 @@ class Roles extends Component
             $role->name = Role::namespacedName($this->tenantId(), $label);
             $role->display_name = $label;
             $role->save();
-            $message = 'تم تحديث الدور بنجاح';
+            $message = __('تم تحديث الدور بنجاح');
         } else {
             $role = Role::create([
                 'tenant_id' => $this->tenantId(),
@@ -131,7 +134,7 @@ class Roles extends Component
                 'display_name' => $label,
                 'guard_name' => 'web',
             ]);
-            $message = 'تم إنشاء الدور بنجاح';
+            $message = __('تم إنشاء الدور بنجاح');
         }
 
         $role->syncPermissions(array_values($data['permissions']));
@@ -159,12 +162,12 @@ class Roles extends Component
             $role = $this->ownCustomRole($this->confirmingDeleteId);
             if ($role->users()->exists()) {
                 $this->confirmingDeleteId = null;
-                $this->dispatch('toast', message: 'لا يمكن حذف دور لا يزال مسنداً إلى مستخدمين.');
+                $this->dispatch('toast', message: __('لا يمكن حذف دور لا يزال مسنداً إلى مستخدمين.'));
 
                 return;
             }
             $role->delete();
-            $this->dispatch('toast', message: 'تم حذف الدور');
+            $this->dispatch('toast', message: __('تم حذف الدور'));
         }
         $this->confirmingDeleteId = null;
     }

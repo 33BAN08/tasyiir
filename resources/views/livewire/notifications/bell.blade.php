@@ -6,7 +6,7 @@
     ];
 @endphp
 <div class="relative" x-data="{ open: false }" wire:poll.30s>
-    <button type="button" x-on:click="open = !open" class="btn-icon relative" aria-label="الإشعارات">
+    <button type="button" x-on:click="open = !open" class="btn-icon relative" aria-label="{{ __('الإشعارات') }}">
         <x-icon name="bell" class="w-5 h-5" />
         @if ($unread > 0)
             <span class="absolute top-1.5 end-1.5 w-2 h-2 rounded-full bg-red-500 ring-2 ring-white"></span>
@@ -14,11 +14,11 @@
     </button>
     <x-dropdown-panel align="end" width="w-80">
         <div class="flex items-center justify-between px-3.5 pb-2 mb-1 border-b border-ink-100">
-            <p class="text-sm font-bold text-ink-800">الإشعارات</p>
+            <p class="text-sm font-bold text-ink-800">{{ __('الإشعارات') }}</p>
             @if ($unread > 0)
-                <span class="text-xs font-semibold text-brand-600 ltr-nums">{{ $unread }} جديدة</span>
+                <span class="text-xs font-semibold text-brand-600 ltr-nums">{{ $unread }} {{ __('جديدة') }}</span>
             @else
-                <span class="text-xs text-ink-400">لا جديد</span>
+                <span class="text-xs text-ink-400">{{ __('لا جديد') }}</span>
             @endif
         </div>
         <div class="max-h-80 overflow-y-auto">
@@ -32,17 +32,17 @@
                         <p class="text-xs text-ink-400 mt-0.5">{{ $n->created_at->diffForHumans() }}</p>
                     </div>
                     @unless ($n->read)
-                        <button type="button" class="btn-icon !p-1 shrink-0" wire:click="markRead({{ $n->id }})" aria-label="تعليم كمقروء" title="تعليم كمقروء">
+                        <button type="button" class="btn-icon !p-1 shrink-0" wire:click="markRead({{ $n->id }})" aria-label="{{ __('تعليم كمقروء') }}" title="{{ __('تعليم كمقروء') }}">
                             <x-icon name="check" class="w-3.5 h-3.5" />
                         </button>
                     @endunless
                 </div>
             @empty
-                <p class="px-3.5 py-6 text-center text-xs text-ink-400">لا توجد إشعارات بعد</p>
+                <p class="px-3.5 py-6 text-center text-xs text-ink-400">{{ __('لا توجد إشعارات بعد') }}</p>
             @endforelse
         </div>
         <div class="px-3.5 pt-2 mt-1 border-t border-ink-100">
-            <a href="{{ route('notifications.index') }}" class="block text-center text-sm font-semibold text-brand-600 hover:text-brand-700 py-1">عرض كل الإشعارات</a>
+            <a href="{{ route('notifications.index') }}" class="block text-center text-sm font-semibold text-brand-600 hover:text-brand-700 py-1">{{ __('عرض كل الإشعارات') }}</a>
         </div>
     </x-dropdown-panel>
 </div>

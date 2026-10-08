@@ -51,13 +51,16 @@ class Index extends Component
         ];
     }
 
-    protected array $validationAttributes = [
-        'label' => 'البيان',
-        'category' => 'الفئة',
-        'amount' => 'المبلغ',
-        'date' => 'التاريخ',
-        'method' => 'طريقة الدفع',
-    ];
+    protected function validationAttributes(): array
+    {
+        return [
+            'label' => __('البيان'),
+            'category' => __('الفئة'),
+            'amount' => __('المبلغ'),
+            'date' => __('التاريخ'),
+            'method' => __('طريقة الدفع'),
+        ];
+    }
 
     public function updatingSearch(): void
     {
@@ -114,7 +117,7 @@ class Index extends Component
 
         if ($this->editingId) {
             Expense::findOrFail($this->editingId)->update($data);
-            $this->dispatch('toast', message: 'تم تحديث المصروف بنجاح');
+            $this->dispatch('toast', message: __('تم تحديث المصروف بنجاح'));
         } else {
             Expense::create($data);
             Notification::notify([
@@ -125,7 +128,7 @@ class Index extends Component
                 'category' => 'المالية',
             ]);
             $this->dispatch('notification-created');
-            $this->dispatch('toast', message: 'تمت إضافة المصروف بنجاح');
+            $this->dispatch('toast', message: __('تمت إضافة المصروف بنجاح'));
         }
 
         $this->closeModal();
@@ -145,7 +148,7 @@ class Index extends Component
     {
         if ($this->confirmingDeleteId) {
             Expense::findOrFail($this->confirmingDeleteId)->delete();
-            $this->dispatch('toast', message: 'تم حذف المصروف بنجاح');
+            $this->dispatch('toast', message: __('تم حذف المصروف بنجاح'));
         }
         $this->confirmingDeleteId = null;
         $this->resetPage();
@@ -169,6 +172,6 @@ class Index extends Component
             'stats' => $stats,
             'categoryNames' => Expense::CATEGORIES,
             'methods' => Expense::METHODS,
-        ])->extends('layouts.app')->section('content')->title('المصاريف');
+        ])->extends('layouts.app')->section('content')->title(__('المصاريف'));
     }
 }

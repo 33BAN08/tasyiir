@@ -5,16 +5,12 @@ namespace App\Livewire\Public;
 use App\Models\CenterSignupRequest;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
-use Livewire\Attributes\Layout;
-use Livewire\Attributes\Title;
 use Livewire\Component;
 
 /**
  * Public center signup. Creates a CenterSignupRequest only — no tenant, no
  * user, no session. A platform admin turns it into a live center on approval.
  */
-#[Layout('layouts.guest', ['maxWidth' => 'max-w-lg'])]
-#[Title('تسجيل مركز جديد')]
 class CenterSignup extends Component
 {
     public string $center_name = '';
@@ -47,19 +43,22 @@ class CenterSignup extends Component
         ];
     }
 
-    protected array $validationAttributes = [
-        'center_name' => 'اسم المركز',
-        'owner_name' => 'اسم المسؤول',
-        'owner_email' => 'البريد الإلكتروني',
-        'owner_phone' => 'رقم الهاتف',
-        'password' => 'كلمة المرور',
-        'password_confirmation' => 'تأكيد كلمة المرور',
-    ];
+    protected function validationAttributes(): array
+    {
+        return [
+            'center_name' => __('اسم المركز'),
+            'owner_name' => __('اسم المسؤول'),
+            'owner_email' => __('البريد الإلكتروني'),
+            'owner_phone' => __('رقم الهاتف'),
+            'password' => __('كلمة المرور'),
+            'password_confirmation' => __('تأكيد كلمة المرور'),
+        ];
+    }
 
     protected function messages(): array
     {
         return [
-            'owner_email.unique' => 'هذا البريد الإلكتروني مستخدم بالفعل أو لديه طلب قيد المراجعة.',
+            'owner_email.unique' => __('هذا البريد الإلكتروني مستخدم بالفعل أو لديه طلب قيد المراجعة.'),
         ];
     }
 
@@ -82,6 +81,8 @@ class CenterSignup extends Component
 
     public function render()
     {
-        return view('livewire.public.center-signup');
+        return view('livewire.public.center-signup')
+            ->layout('layouts.guest', ['maxWidth' => 'max-w-lg'])
+            ->title(__('تسجيل مركز جديد'));
     }
 }

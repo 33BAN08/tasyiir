@@ -32,13 +32,13 @@ class ReportsController extends Controller
                 'متوسط قيمة التسجيل' => mad(Analytics::averageEnrollmentValue()),
             ]],
             ['title' => 'الإيرادات', 'icon' => 'banknote', 'tone' => 'violet', 'stats' => [
-                "إيرادات {$month}" => mad(Analytics::revenueThisMonth()),
+                __('إيرادات :month', ['month' => $month]) => mad(Analytics::revenueThisMonth()),
                 'نسبة التحصيل' => $collection['rate'].'%',
                 'مبالغ متبقية' => mad($collection['remaining']),
             ]],
             ['title' => 'المصاريف', 'icon' => 'receipt', 'tone' => 'rose', 'stats' => [
-                "مصاريف {$month}" => mad($expenses['total_this_month']),
-                'أكبر فئة' => $expenses['biggest_category'],
+                __('مصاريف :month', ['month' => $month]) => mad($expenses['total_this_month']),
+                'أكبر فئة' => __($expenses['biggest_category']),
                 'المعدل اليومي' => mad($expenses['avg_daily']),
             ]],
             ['title' => 'أجور الأساتذة', 'icon' => 'wallet', 'tone' => 'amber', 'stats' => [

@@ -9,10 +9,22 @@ if (!function_exists('mad')) {
 }
 
 if (!function_exists('ar_date')) {
-    /** A simple Arabic-formatted Gregorian date, e.g. "الثلاثاء، 16 شتنبر 2026" */
+    /**
+     * A long date in the current UI language, e.g. "الثلاثاء، 16 شتنبر 2026",
+     * "mardi 16 septembre 2026" or "Tuesday, September 16, 2026". Arabic keeps
+     * the Moroccan month names (شتنبر, not سبتمبر), so it uses its own tables.
+     */
     function ar_date(?\DateTimeInterface $date = null): string
     {
         $date = $date ?? new \DateTime('now');
+
+        if (app()->getLocale() !== 'ar') {
+            $carbon = \Illuminate\Support\Carbon::instance($date)->locale(\App\Http\Middleware\SetLocale::carbonLocale());
+
+            return app()->getLocale() === 'fr'
+                ? $carbon->translatedFormat('l j F Y')
+                : $carbon->translatedFormat('l, F j, Y');
+        }
 
         $days = [
             'Sunday' => 'الأحد', 'Monday' => 'الاثنين', 'Tuesday' => 'الثلاثاء',
@@ -27,6 +39,14 @@ if (!function_exists('ar_date')) {
         $monthName = $months[(int) $date->format('n')];
 
         return sprintf('%s، %d %s %d', $dayName, (int) $date->format('j'), $monthName, (int) $date->format('Y'));
+    }
+}
+
+if (!function_exists('is_rtl')) {
+    /** True when the current UI language reads right-to-left (Arabic). */
+    function is_rtl(): bool
+    {
+        return \App\Http\Middleware\SetLocale::isRtl();
     }
 }
 

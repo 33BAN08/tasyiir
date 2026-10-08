@@ -14,8 +14,8 @@
 @endphp
 
 <div class="mb-6 flex items-center gap-2 text-sm text-ink-500">
-    <a href="{{ route('students.index') }}" class="hover:text-brand-600 font-medium">الطلاب</a>
-    <x-icon name="chevron-left" class="w-3.5 h-3.5" />
+    <a href="{{ route('students.index') }}" class="hover:text-brand-600 font-medium">{{ __('الطلاب') }}</a>
+    <x-icon name="chevron-left" class="ltr:rotate-180 w-3.5 h-3.5" />
     <span class="text-ink-700 font-medium">{{ $student->name }}</span>
 </div>
 
@@ -46,21 +46,21 @@
                 </div>
                 <div class="flex items-center gap-3 text-sm">
                     <x-icon name="calendar-days" class="w-4 h-4 text-ink-400" />
-                    <span class="ltr-nums text-ink-700">تاريخ التسجيل: {{ $student->registered_at->format('Y-m-d') }}</span>
+                    <span class="ltr-nums text-ink-700">{{ __('تاريخ التسجيل:') }} {{ $student->registered_at->format('Y-m-d') }}</span>
                 </div>
                 <div class="flex items-center gap-3 text-sm">
                     <x-icon name="phone" class="w-4 h-4 text-ink-400" />
-                    <span class="ltr-nums text-ink-700">ولي الأمر: {{ $student->guardian_phone ?? '—' }}</span>
+                    <span class="ltr-nums text-ink-700">{{ __('ولي الأمر:') }} {{ $student->guardian_phone ?? '—' }}</span>
                 </div>
             </div>
 
             <div class="w-full mt-6 grid grid-cols-2 gap-2">
-                <a href="{{ route('enrollments.index', ['student' => $student->id]) }}" class="btn-primary col-span-2 justify-center"><x-icon name="clipboard-list" class="w-4 h-4" /> تسجيل في دورة</a>
-                <a href="{{ route('students.index', ['edit' => $student->id]) }}" class="btn-secondary"><x-icon name="pencil" class="w-4 h-4" /> تعديل</a>
-                <form method="POST" action="{{ route('students.destroy', $student) }}" onsubmit="return confirm('هل أنت متأكد من حذف هذا الطالب؟');">
+                <a href="{{ route('enrollments.index', ['student' => $student->id]) }}" class="btn-primary col-span-2 justify-center"><x-icon name="clipboard-list" class="w-4 h-4" /> {{ __('تسجيل في دورة') }}</a>
+                <a href="{{ route('students.index', ['edit' => $student->id]) }}" class="btn-secondary"><x-icon name="pencil" class="w-4 h-4" /> {{ __('تعديل') }}</a>
+                <form method="POST" action="{{ route('students.destroy', $student) }}" onsubmit="return confirm({{ Js::from(__('هل أنت متأكد من حذف هذا الطالب؟')) }});">
                     @csrf
                     @method('DELETE')
-                    <button type="submit" class="btn-danger w-full"><x-icon name="trash-2" class="w-4 h-4" /> حذف</button>
+                    <button type="submit" class="btn-danger w-full"><x-icon name="trash-2" class="w-4 h-4" /> {{ __('حذف') }}</button>
                 </form>
             </div>
         </div>
@@ -69,23 +69,23 @@
     <!-- Tabs -->
     <div class="lg:col-span-2" x-data="{ tab: 'info' }">
         <div class="card p-1.5 flex items-center gap-1 mb-5 overflow-x-auto">
-            <button type="button" x-on:click="tab = 'info'" :class="tab === 'info' ? 'bg-brand-600 text-white' : 'text-ink-500 hover:bg-ink-100'" class="flex-1 whitespace-nowrap px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors">المعلومات الشخصية</button>
-            <button type="button" x-on:click="tab = 'enrollments'" :class="tab === 'enrollments' ? 'bg-brand-600 text-white' : 'text-ink-500 hover:bg-ink-100'" class="flex-1 whitespace-nowrap px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors">التسجيلات</button>
-            <button type="button" x-on:click="tab = 'attendance'" :class="tab === 'attendance' ? 'bg-brand-600 text-white' : 'text-ink-500 hover:bg-ink-100'" class="flex-1 whitespace-nowrap px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors">الحضور</button>
-            <button type="button" x-on:click="tab = 'payments'" :class="tab === 'payments' ? 'bg-brand-600 text-white' : 'text-ink-500 hover:bg-ink-100'" class="flex-1 whitespace-nowrap px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors">المدفوعات</button>
-            <button type="button" x-on:click="tab = 'activity'" :class="tab === 'activity' ? 'bg-brand-600 text-white' : 'text-ink-500 hover:bg-ink-100'" class="flex-1 whitespace-nowrap px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors">النشاط</button>
+            <button type="button" x-on:click="tab = 'info'" :class="tab === 'info' ? 'bg-brand-600 text-white' : 'text-ink-500 hover:bg-ink-100'" class="flex-1 whitespace-nowrap px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors">{{ __('المعلومات الشخصية') }}</button>
+            <button type="button" x-on:click="tab = 'enrollments'" :class="tab === 'enrollments' ? 'bg-brand-600 text-white' : 'text-ink-500 hover:bg-ink-100'" class="flex-1 whitespace-nowrap px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors">{{ __('التسجيلات') }}</button>
+            <button type="button" x-on:click="tab = 'attendance'" :class="tab === 'attendance' ? 'bg-brand-600 text-white' : 'text-ink-500 hover:bg-ink-100'" class="flex-1 whitespace-nowrap px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors">{{ __('الحضور') }}</button>
+            <button type="button" x-on:click="tab = 'payments'" :class="tab === 'payments' ? 'bg-brand-600 text-white' : 'text-ink-500 hover:bg-ink-100'" class="flex-1 whitespace-nowrap px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors">{{ __('المدفوعات') }}</button>
+            <button type="button" x-on:click="tab = 'activity'" :class="tab === 'activity' ? 'bg-brand-600 text-white' : 'text-ink-500 hover:bg-ink-100'" class="flex-1 whitespace-nowrap px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors">{{ __('النشاط') }}</button>
         </div>
 
         <!-- المعلومات الشخصية (real data) -->
         <div x-show="tab === 'info'" class="card p-6 grid grid-cols-1 sm:grid-cols-2 gap-5">
-            <div><p class="text-xs text-ink-400 mb-1">الاسم الكامل</p><p class="text-sm font-semibold text-ink-800">{{ $student->name }}</p></div>
-            <div><p class="text-xs text-ink-400 mb-1">الجنس</p><p class="text-sm font-semibold text-ink-800">{{ match ($student->gender) { 'male' => 'ذكر', 'female' => 'أنثى', default => '—' } }}</p></div>
-            <div><p class="text-xs text-ink-400 mb-1">رقم الهاتف</p><p class="ltr-nums text-sm font-semibold text-ink-800">{{ $student->phone }}</p></div>
-            <div><p class="text-xs text-ink-400 mb-1">البريد الإلكتروني</p><p class="text-sm font-semibold text-ink-800">{{ $student->email ?? '—' }}</p></div>
-            <div><p class="text-xs text-ink-400 mb-1">المدينة</p><p class="text-sm font-semibold text-ink-800">{{ $student->city ?? '—' }}</p></div>
-            <div><p class="text-xs text-ink-400 mb-1">هاتف ولي الأمر</p><p class="ltr-nums text-sm font-semibold text-ink-800">{{ $student->guardian_phone ?? '—' }}</p></div>
-            <div><p class="text-xs text-ink-400 mb-1">الدورة الحالية</p><p class="text-sm font-semibold text-ink-800">{{ $student->course?->name ?? '—' }}</p></div>
-            <div><p class="text-xs text-ink-400 mb-1">المجموعة</p><p class="text-sm font-semibold text-ink-800">{{ $student->group?->name ?? '—' }}</p></div>
+            <div><p class="text-xs text-ink-400 mb-1">{{ __('الاسم الكامل') }}</p><p class="text-sm font-semibold text-ink-800">{{ $student->name }}</p></div>
+            <div><p class="text-xs text-ink-400 mb-1">{{ __('الجنس') }}</p><p class="text-sm font-semibold text-ink-800">{{ match ($student->gender) { 'male' => __('ذكر'), 'female' => __('أنثى'), default => '—' } }}</p></div>
+            <div><p class="text-xs text-ink-400 mb-1">{{ __('رقم الهاتف') }}</p><p class="ltr-nums text-sm font-semibold text-ink-800">{{ $student->phone }}</p></div>
+            <div><p class="text-xs text-ink-400 mb-1">{{ __('البريد الإلكتروني') }}</p><p class="text-sm font-semibold text-ink-800">{{ $student->email ?? '—' }}</p></div>
+            <div><p class="text-xs text-ink-400 mb-1">{{ __('المدينة') }}</p><p class="text-sm font-semibold text-ink-800">{{ $student->city ?? '—' }}</p></div>
+            <div><p class="text-xs text-ink-400 mb-1">{{ __('هاتف ولي الأمر') }}</p><p class="ltr-nums text-sm font-semibold text-ink-800">{{ $student->guardian_phone ?? '—' }}</p></div>
+            <div><p class="text-xs text-ink-400 mb-1">{{ __('الدورة الحالية') }}</p><p class="text-sm font-semibold text-ink-800">{{ $student->course?->name ?? '—' }}</p></div>
+            <div><p class="text-xs text-ink-400 mb-1">{{ __('المجموعة') }}</p><p class="text-sm font-semibold text-ink-800">{{ $student->group?->name ?? '—' }}</p></div>
         </div>
 
         <!-- التسجيلات (real — latest enrollment) -->
@@ -95,12 +95,12 @@
                     <table class="w-full">
                         <thead class="bg-ink-50 border-b border-ink-100">
                             <tr>
-                                <th class="table-head-cell">الدورة</th>
-                                <th class="table-head-cell">المجموعة</th>
-                                <th class="table-head-cell">السعر</th>
-                                <th class="table-head-cell">الخصم</th>
-                                <th class="table-head-cell">المتبقي</th>
-                                <th class="table-head-cell">الحالة</th>
+                                <th class="table-head-cell">{{ __('الدورة') }}</th>
+                                <th class="table-head-cell">{{ __('المجموعة') }}</th>
+                                <th class="table-head-cell">{{ __('السعر') }}</th>
+                                <th class="table-head-cell">{{ __('الخصم') }}</th>
+                                <th class="table-head-cell">{{ __('المتبقي') }}</th>
+                                <th class="table-head-cell">{{ __('الحالة') }}</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-ink-100">
@@ -116,7 +116,7 @@
                     </table>
                 </div>
             @else
-                <x-empty-state icon="clipboard-list" title="لا توجد تسجيلات" />
+                <x-empty-state icon="clipboard-list" title="{{ __('لا توجد تسجيلات') }}" />
             @endif
         </div>
 
@@ -129,7 +129,7 @@
                         <x-status-badge :label="$h->state" :tone="$stateTone[$h->state] ?? 'neutral'" />
                     </div>
                 @empty
-                    <x-empty-state icon="calendar-check" title="لا يوجد سجل حضور بعد" />
+                    <x-empty-state icon="calendar-check" title="{{ __('لا يوجد سجل حضور بعد') }}" />
                 @endforelse
             </div>
         </div>
@@ -138,24 +138,24 @@
         <div x-show="tab === 'payments'" class="card overflow-hidden">
             @if ($enrollment)
                 <div class="p-5 grid grid-cols-3 gap-4 border-b border-ink-100">
-                    <div><p class="text-xs text-ink-400 mb-1">السعر الإجمالي</p><p class="ltr-nums font-bold text-ink-800">{{ mad($enrollment->net) }}</p></div>
-                    <div><p class="text-xs text-ink-400 mb-1">المؤدى</p><p class="ltr-nums font-bold text-emerald-600">{{ mad($enrollment->paid) }}</p></div>
-                    <div><p class="text-xs text-ink-400 mb-1">المتبقي</p><p class="ltr-nums font-bold text-red-600">{{ mad($enrollment->remaining) }}</p></div>
+                    <div><p class="text-xs text-ink-400 mb-1">{{ __('السعر الإجمالي') }}</p><p class="ltr-nums font-bold text-ink-800">{{ mad($enrollment->net) }}</p></div>
+                    <div><p class="text-xs text-ink-400 mb-1">{{ __('المؤدى') }}</p><p class="ltr-nums font-bold text-emerald-600">{{ mad($enrollment->paid) }}</p></div>
+                    <div><p class="text-xs text-ink-400 mb-1">{{ __('المتبقي') }}</p><p class="ltr-nums font-bold text-red-600">{{ mad($enrollment->remaining) }}</p></div>
                 </div>
             @endif
             <div class="p-5">
                 <a href="{{ route('payments.index', ['student' => $student->id]) }}" class="btn-primary w-full justify-center">
-                    <x-icon name="wallet" class="w-4 h-4" /> تسجيل دفعة جديدة
+                    <x-icon name="wallet" class="w-4 h-4" /> {{ __('تسجيل دفعة جديدة') }}
                 </a>
                 @php $studentPayments = $student->payments()->latest('date')->latest('id')->limit(5)->get(); @endphp
                 @if ($studentPayments->isNotEmpty())
                     <div class="mt-4 divide-y divide-ink-100 border-t border-ink-100">
                         @foreach ($studentPayments as $pay)
                             <div class="flex items-center justify-between py-2.5 text-sm">
-                                <span class="ltr-nums text-ink-500">{{ $pay->date->format('Y-m-d') }} · {{ $pay->method }}</span>
+                                <span class="ltr-nums text-ink-500">{{ $pay->date->format('Y-m-d') }} · {{ __($pay->method) }}</span>
                                 <span class="flex items-center gap-2">
                                     <span class="ltr-nums font-semibold text-emerald-700">{{ mad($pay->amount) }}</span>
-                                    <a href="{{ route('payments.receipt', $pay) }}" target="_blank" class="btn-icon !p-1" aria-label="إيصال" title="طباعة الإيصال"><x-icon name="download" class="w-3.5 h-3.5" /></a>
+                                    <a href="{{ route('payments.receipt', $pay) }}" target="_blank" class="btn-icon !p-1" aria-label="{{ __('إيصال') }}" title="{{ __('طباعة الإيصال') }}"><x-icon name="download" class="w-3.5 h-3.5" /></a>
                                 </span>
                             </div>
                         @endforeach
@@ -169,18 +169,18 @@
             <ol class="relative border-e-2 border-ink-100 me-3 space-y-6">
                 <li class="relative pe-6">
                     <span class="absolute -end-[9px] top-0 w-4 h-4 rounded-full bg-brand-500 ring-4 ring-brand-100"></span>
-                    <p class="text-sm font-semibold text-ink-800">تم تسجيل الطالب في {{ $student->course?->name ?? '—' }}</p>
+                    <p class="text-sm font-semibold text-ink-800">{{ __('تم تسجيل الطالب في') }} {{ $student->course?->name ?? '—' }}</p>
                     <p class="ltr-nums text-xs text-ink-400 mt-0.5">{{ $student->registered_at->format('Y-m-d') }}</p>
                 </li>
                 <li class="relative pe-6">
                     <span class="absolute -end-[9px] top-0 w-4 h-4 rounded-full bg-blue-500 ring-4 ring-blue-100"></span>
-                    <p class="text-sm font-semibold text-ink-800">تسجيل حضور الحصة الأولى</p>
+                    <p class="text-sm font-semibold text-ink-800">{{ __('تسجيل حضور الحصة الأولى') }}</p>
                     <p class="text-xs text-ink-400 mt-0.5">{{ $student->group?->name ?? '—' }}</p>
                 </li>
                 <li class="relative pe-6">
                     <span class="absolute -end-[9px] top-0 w-4 h-4 rounded-full bg-amber-500 ring-4 ring-amber-100"></span>
-                    <p class="text-sm font-semibold text-ink-800">إضافة الطالب إلى النظام</p>
-                    <p class="text-xs text-ink-400 mt-0.5">بواسطة {{ auth()->user()?->name }} — مدير المركز</p>
+                    <p class="text-sm font-semibold text-ink-800">{{ __('إضافة الطالب إلى النظام') }}</p>
+                    <p class="text-xs text-ink-400 mt-0.5">{{ __('بواسطة') }} {{ auth()->user()?->name }} — {{ __('مدير المركز') }}</p>
                 </li>
             </ol>
         </div>

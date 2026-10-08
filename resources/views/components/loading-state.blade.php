@@ -3,5 +3,5 @@
     @foreach (range(1, $rows) as $r)
         <div class="h-12 rounded-xl bg-ink-100 animate-pulse"></div>
     @endforeach
-    <span class="sr-only">جارٍ التحميل...</span>
+    <span class="sr-only">{{ __('جارٍ التحميل...') }}</span>
 </div>

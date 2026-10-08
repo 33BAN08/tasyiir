@@ -7,6 +7,7 @@ use App\Models\Enrollment;
 use App\Models\Group;
 use App\Models\Notification;
 use App\Models\Student;
+use Carbon\Carbon;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -78,7 +79,7 @@ class Index extends Component
             'date' => ['required', 'date'],
             'due_date' => ['nullable', 'date', function ($attribute, $value, $fail) {
                 if ($value && $this->date && $value < $this->date) {
-                    $fail('يجب أن يكون تاريخ الاستحقاق بعد تاريخ التسجيل أو مساوياً له.');
+                    $fail(__('يجب أن يكون تاريخ الاستحقاق بعد تاريخ التسجيل أو مساوياً له.'));
                 }
             }],
             'price' => ['required', 'integer', 'min:0'],
@@ -87,16 +88,19 @@ class Index extends Component
         ];
     }
 
-    protected array $validationAttributes = [
-        'student_id' => 'الطالب',
-        'course_id' => 'الدورة',
-        'group_id' => 'المجموعة',
-        'date' => 'تاريخ التسجيل',
-        'due_date' => 'تاريخ الاستحقاق',
-        'price' => 'السعر',
-        'discount' => 'الخصم',
-        'paid' => 'المبلغ المؤدى',
-    ];
+    protected function validationAttributes(): array
+    {
+        return [
+            'student_id' => __('الطالب'),
+            'course_id' => __('الدورة'),
+            'group_id' => __('المجموعة'),
+            'date' => __('تاريخ التسجيل'),
+            'due_date' => __('تاريخ الاستحقاق'),
+            'price' => __('السعر'),
+            'discount' => __('الخصم'),
+            'paid' => __('المبلغ المؤدى'),
+        ];
+    }
 
     public function mount(): void
     {
@@ -118,7 +122,7 @@ class Index extends Component
     public function updatedDate($value): void
     {
         if (! $this->editingId && $value) {
-            $this->due_date = \Carbon\Carbon::parse($value)->addMonth()->toDateString();
+            $this->due_date = Carbon::parse($value)->addMonth()->toDateString();
         }
     }
 
@@ -212,13 +216,13 @@ class Index extends Component
 
             // Settling a period that is due (or overdue) in full moves the
             // deadline to the next month.
-            $dueDate = $attributes['due_date'] ? \Carbon\Carbon::parse($attributes['due_date']) : null;
+            $dueDate = $attributes['due_date'] ? Carbon::parse($attributes['due_date']) : null;
             if ($attributes['status'] === 'مكتمل' && $enrollment->status !== 'مكتمل' && $dueDate && $dueDate->lte(today())) {
                 $attributes['due_date'] = $dueDate->addMonth()->toDateString();
             }
 
             $enrollment->update($attributes);
-            $this->dispatch('toast', message: 'تم تحديث التسجيل بنجاح');
+            $this->dispatch('toast', message: __('تم تحديث التسجيل بنجاح'));
         } else {
             $enrollment = Enrollment::create($attributes);
             $enrollment->load(['student', 'course']);
@@ -230,7 +234,7 @@ class Index extends Component
                 'category' => 'التسجيلات',
             ]);
             $this->dispatch('notification-created');
-            $this->dispatch('toast', message: 'تم تسجيل الطالب بنجاح');
+            $this->dispatch('toast', message: __('تم تسجيل الطالب بنجاح'));
         }
 
         $enrollment->syncStudent();
@@ -252,7 +256,7 @@ class Index extends Component
     {
         if ($this->confirmingDeleteId) {
             Enrollment::findOrFail($this->confirmingDeleteId)->delete();
-            $this->dispatch('toast', message: 'تم حذف التسجيل بنجاح');
+            $this->dispatch('toast', message: __('تم حذف التسجيل بنجاح'));
         }
         $this->confirmingDeleteId = null;
         $this->resetPage();
@@ -319,6 +323,6 @@ class Index extends Component
             'pinnedStudent' => $pinnedStudent,
             'preview' => $preview,
             'statuses' => Enrollment::STATUSES,
-        ])->extends('layouts.app')->section('content')->title('التسجيلات');
+        ])->extends('layouts.app')->section('content')->title(__('التسجيلات'));
     }
 }

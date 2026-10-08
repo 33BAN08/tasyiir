@@ -44,7 +44,7 @@ class LoginForm extends Form
             Auth::logout();
             RateLimiter::hit($this->throttleKey());
             throw ValidationException::withMessages([
-                'form.email' => EnsureUserIsActive::MESSAGE,
+                'form.email' => __(EnsureUserIsActive::MESSAGE),
             ]);
         }
 

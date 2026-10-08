@@ -22,7 +22,7 @@ class EnsureUserIsActive
             $request->session()->invalidate();
             $request->session()->regenerateToken();
 
-            return redirect()->route('login')->with('status', self::MESSAGE);
+            return redirect()->route('login')->with('status', __(self::MESSAGE));
         }
 
         return $next($request);

@@ -93,11 +93,11 @@ body {
 
 /* On table cells the inline-block above would break table layout (the cell
    stops being a cell and every column after it shifts). Keep them real cells,
-   right-aligned so they stay under their RTL headers. */
+   start-aligned so they stay under their headers in both RTL and LTR. */
 td.ltr-nums,
 th.ltr-nums {
   display: table-cell;
-  text-align: right;
+  text-align: start;
 }
 
 @layer components {

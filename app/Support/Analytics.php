@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Http\Middleware\SetLocale;
 use App\Models\AttendanceRecord;
 use App\Models\Course;
 use App\Models\Enrollment;
@@ -24,10 +25,10 @@ use Illuminate\Support\Facades\DB;
  */
 class Analytics
 {
-    /** Moroccan month names, matching ar_date() and the Phase 1 chart labels. */
+    /** Month name in the UI language (Moroccan Arabic names for ar, matching ar_date()). */
     public static function monthLabel(Carbon $month): string
     {
-        return $month->copy()->locale('ar_MA')->translatedFormat('F');
+        return $month->copy()->locale(SetLocale::carbonLocale())->translatedFormat('F');
     }
 
     /** The last $months calendar months, oldest first, each as its first day. */

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'التقارير')
+@section('title', __('التقارير'))
 
 @section('content')
 @php
@@ -10,9 +10,9 @@
     ];
 @endphp
 
-<x-page-header title="التقارير" subtitle="تقارير شاملة حول جميع أنشطة المركز">
-    <button type="button" class="btn-secondary" data-toast="جاري تصدير التقرير... (تجريبي)">
-        <x-icon name="download" class="w-4 h-4" /> تصدير PDF
+<x-page-header title="{{ __('التقارير') }}" subtitle="{{ __('تقارير شاملة حول جميع أنشطة المركز') }}">
+    <button type="button" class="btn-secondary" data-toast="{{ __('جاري تصدير التقرير... (تجريبي)') }}">
+        <x-icon name="download" class="w-4 h-4" /> {{ __('تصدير PDF') }}
     </button>
 </x-page-header>
 
@@ -23,25 +23,25 @@
                 <span class="inline-flex items-center justify-center w-11 h-11 rounded-xl {{ $toneClasses[$s['tone']] }}">
                     <x-icon :name="$s['icon']" class="w-5 h-5" />
                 </span>
-                <h3 class="font-bold text-ink-800">{{ $s['title'] }}</h3>
+                <h3 class="font-bold text-ink-800">{{ __($s['title']) }}</h3>
             </div>
             <div class="space-y-2">
                 @foreach ($s['stats'] as $label => $value)
                     <div class="flex items-center justify-between text-sm">
-                        <span class="text-ink-500">{{ $label }}</span>
+                        <span class="text-ink-500">{{ __($label) }}</span>
                         <span class="ltr-nums font-semibold text-ink-800">{{ $value }}</span>
                     </div>
                 @endforeach
             </div>
-            <button type="button" class="btn-secondary justify-center mt-1" data-toast="فتح التقرير التفصيلي (تجريبي)">
-                عرض التفاصيل
-                <x-icon name="arrow-left" class="w-4 h-4" />
+            <button type="button" class="btn-secondary justify-center mt-1" data-toast="{{ __('فتح التقرير التفصيلي (تجريبي)') }}">
+                {{ __('عرض التفاصيل') }}
+                <x-icon name="arrow-left" class="ltr:rotate-180 w-4 h-4" />
             </button>
         </div>
     @endforeach
 </div>
 
-<x-chart-container id="reportsRevenueChart" title="الإيرادات والمصاريف" subtitle="آخر 6 أشهر">
+<x-chart-container id="reportsRevenueChart" title="{{ __('الإيرادات والمصاريف') }}" subtitle="{{ __('آخر 6 أشهر') }}">
     <span class="text-xs text-ink-400">MAD</span>
 </x-chart-container>
 
@@ -49,7 +49,9 @@
 
 @section('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', () => {
+(() => {
+// Scoped: with wire:navigate every page's script shares one global scope.
+const initCharts = () => {
     const ctx = document.getElementById('reportsRevenueChart');
     if (!ctx || !window.Chart) return;
     new Chart(ctx, {
@@ -57,8 +59,8 @@ document.addEventListener('DOMContentLoaded', () => {
         data: {
             labels: {!! json_encode($revenue['labels'], JSON_UNESCAPED_UNICODE) !!},
             datasets: [
-                { label: 'الإيرادات', data: {!! json_encode($revenue['revenue']) !!}, backgroundColor: '#10b981', borderRadius: 6 },
-                { label: 'المصاريف', data: {!! json_encode($revenue['expenses']) !!}, backgroundColor: '#f43f5e', borderRadius: 6 },
+                { label: {!! json_encode(__('الإيرادات'), JSON_UNESCAPED_UNICODE) !!}, data: {!! json_encode($revenue['revenue']) !!}, backgroundColor: '#10b981', borderRadius: 6 },
+                { label: {!! json_encode(__('المصاريف'), JSON_UNESCAPED_UNICODE) !!}, data: {!! json_encode($revenue['expenses']) !!}, backgroundColor: '#f43f5e', borderRadius: 6 },
             ],
         },
         options: {
@@ -67,6 +69,9 @@ document.addEventListener('DOMContentLoaded', () => {
             scales: { y: { beginAtZero: true }, x: { reverse: true } },
         },
     });
-});
+};
+// Fires on the first full load and after every wire:navigate visit (DOMContentLoaded only fires on the former).
+document.addEventListener('livewire:navigated', initCharts, { once: true });
+})();
 </script>
 @endsection

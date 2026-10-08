@@ -27,7 +27,7 @@ class StatisticsController extends Controller
         $revenue = Analytics::revenueByMonth($months);
         $collection = Analytics::collectionRate();
 
-        $since = 'منذ '.$growth['labels'][0];
+        $since = __('منذ :month', ['month' => $growth['labels'][0]]);
         $trends = [
             'students' => Analytics::trend($growth['total']),
             'enrollments' => Analytics::trend($enrollments['count']),

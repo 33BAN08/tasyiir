@@ -4,7 +4,7 @@ TASYIIR (created by IAM Agency) is a real Laravel 12 + Livewire 3 + Tailwind app
 
 ## Requirements
 
-- PHP 8.2+ with the `sqlite3` / `pdo_sqlite` extensions (XAMPP's default build has them)
+- PHP 8.2+ with the `sqlite3` / `pdo_sqlite` extensions (XAMPP's default build has them) and **`gd` enabled** — in XAMPP, uncomment `extension=gd` in `C:\xampp\php\php.ini` (needed by the Excel backup/import)
 - Composer 2
 - Node.js 18+ and npm (only for building CSS/JS)
 
@@ -82,6 +82,8 @@ Everything below is database-backed and tenant-scoped through `App\Models\Concer
 - **Dashboard** — `DashboardController` + `App\Support\Analytics`: live stat cards (trends only where last month is a fair baseline), revenue vs. expenses and student-growth charts for the last 6 months, latest enrollments, today's remaining classes.
 - **Reports** — `ReportsController`: six real summary cards (students, enrollments, revenue + collection rate, expenses, salaries, attendance) and the 6-month chart.
 - **Statistics** — `StatisticsController`: trends, four charts and the course/teacher leaderboards, with a working period select (`?months=6|3|0`, 0 = since January).
+- **Languages** — Arabic (default, RTL), French and English (LTR). Each user picks theirs in Settings → اللغة; the choice is saved on `users.locale` and follows them across devices. Translations live in `lang/fr.json` / `lang/en.json`, keyed by the Arabic string — a missing key shows Arabic rather than breaking. Stored values (statuses, payment methods, categories, days, roles) are never translated in the database, only when displayed.
+- **Backup & import** — Settings → النسخ الاحتياطي (owner only): download a full `.xlsx` backup of the center (one sheet per entity, tenant-scoped) and import a student list from the provided template (rows with an unknown course/group or invalid data are listed with the reason; only students are imported).
 - **Settings** — معلومات المركز (name/tagline/contact, shown in the sidebar, footer and receipts; editable with `manage-settings`, read-only otherwise), الحساب (name, email, password change), and for owners **المستخدمون** (staff accounts: create with an initial password, edit, pause/resume) and **الصلاحيات** (built-in roles with their permission sets, plus custom roles scoped to the center).
 
 ## Not built (new product surface, not migration work)
@@ -93,7 +95,8 @@ The core feature list from the original brief is complete. Candidates for a next
 - **PDF export** on Reports — the button shows a placeholder toast; the printable receipt covers the immediate need.
 - **Salary period history** — `salary_payments` holds one running balance per teacher, not monthly payroll records.
 - **Role-aware notifications** — notifications are tenant-wide for all staff; `Notification.user_id` already supports per-user targeting.
-- The Settings tabs الإشعارات / اللغة / المظهر and the header global search modal are still UI-only.
+- The Settings tabs الإشعارات / المظهر and the header global search modal are still UI-only (اللغة is real).
+- **Translated notifications** — notification titles/bodies are stored as Arabic text when the event happens, so they show in Arabic regardless of the reader's language.
 
 ## Useful commands
 

@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>إيصال أداء رقم {{ $number }} · {{ $tenant?->name ?? 'TASYIIR' }}</title>
+    <title>{{ __('إيصال أداء رقم') }} {{ $number }} · {{ $tenant?->name ?? 'TASYIIR' }}</title>
     <link rel="icon" href="/favicon.ico" sizes="any">
     @vite(['resources/css/app.css'])
     <style>
@@ -18,10 +18,10 @@
 <body class="bg-ink-50 font-sans text-ink-800 antialiased min-h-screen py-8 px-4">
     <div class="no-print max-w-lg mx-auto mb-4 flex items-center justify-between gap-3">
         <a href="{{ route('payments.index') }}" class="btn-secondary">
-            <x-icon name="arrow-right" class="w-4 h-4" /> رجوع
+            <x-icon name="arrow-right" class="ltr:rotate-180 w-4 h-4" /> {{ __('رجوع') }}
         </a>
         <button type="button" class="btn-primary" onclick="window.print()">
-            <x-icon name="download" class="w-4 h-4" /> طباعة / حفظ PDF
+            <x-icon name="download" class="w-4 h-4" /> {{ __('طباعة / حفظ PDF') }}
         </button>
     </div>
 
@@ -43,7 +43,7 @@
                 </div>
             </div>
             <div class="text-end">
-                <p class="text-xs text-ink-400">إيصال أداء</p>
+                <p class="text-xs text-ink-400">{{ __('إيصال أداء') }}</p>
                 <p class="ltr-nums font-mono font-bold text-ink-900">#{{ $number }}</p>
                 <p class="ltr-nums text-xs text-ink-500 mt-0.5">{{ $payment->date->format('Y-m-d') }}</p>
             </div>
@@ -51,30 +51,30 @@
 
         <div class="grid grid-cols-2 gap-x-6 gap-y-3 py-5 border-b border-ink-100 text-sm">
             <div>
-                <p class="text-xs text-ink-400 mb-0.5">الطالب</p>
-                <p class="font-semibold text-ink-900">{{ $student?->name ?? 'طالب محذوف' }}</p>
+                <p class="text-xs text-ink-400 mb-0.5">{{ __('الطالب') }}</p>
+                <p class="font-semibold text-ink-900">{{ $student?->name ?? __('طالب محذوف') }}</p>
                 @if ($student?->phone)
                     <p class="ltr-nums text-xs text-ink-500">{{ $student->phone }}</p>
                 @endif
             </div>
             <div>
-                <p class="text-xs text-ink-400 mb-0.5">الدورة / المجموعة</p>
+                <p class="text-xs text-ink-400 mb-0.5">{{ __('الدورة / المجموعة') }}</p>
                 <p class="font-semibold text-ink-900">{{ $enrollment?->course?->name ?? '—' }}</p>
                 <p class="text-xs text-ink-500">{{ $enrollment?->group?->name ?? '—' }}</p>
             </div>
             <div>
-                <p class="text-xs text-ink-400 mb-0.5">طريقة الدفع</p>
-                <p class="font-semibold text-ink-900">{{ $payment->method }}</p>
+                <p class="text-xs text-ink-400 mb-0.5">{{ __('طريقة الدفع') }}</p>
+                <p class="font-semibold text-ink-900">{{ __($payment->method) }}</p>
             </div>
             <div>
-                <p class="text-xs text-ink-400 mb-0.5">تاريخ الاستحقاق التالي</p>
+                <p class="text-xs text-ink-400 mb-0.5">{{ __('تاريخ الاستحقاق التالي') }}</p>
                 <p class="ltr-nums font-semibold text-ink-900">{{ $enrollment?->due_date?->format('Y-m-d') ?? '—' }}</p>
             </div>
         </div>
 
         <div class="py-5 border-b border-ink-100">
             <div class="flex items-center justify-between rounded-xl bg-brand-50 px-5 py-4">
-                <span class="text-sm font-semibold text-brand-800">المبلغ المؤدى</span>
+                <span class="text-sm font-semibold text-brand-800">{{ __('المبلغ المؤدى') }}</span>
                 <span class="ltr-nums text-2xl font-extrabold text-brand-700">{{ mad($payment->amount) }}</span>
             </div>
         </div>
@@ -82,14 +82,14 @@
         @if ($enrollment)
             <table class="w-full text-sm mt-5">
                 <tbody class="divide-y divide-ink-100">
-                    <tr><td class="py-2 text-ink-500">سعر الدورة (شهرياً)</td><td class="py-2 text-end ltr-nums font-semibold">{{ mad($enrollment->price) }}</td></tr>
+                    <tr><td class="py-2 text-ink-500">{{ __('سعر الدورة (شهرياً)') }}</td><td class="py-2 text-end ltr-nums font-semibold">{{ mad($enrollment->price) }}</td></tr>
                     @if ($enrollment->discount > 0)
-                        <tr><td class="py-2 text-ink-500">الخصم</td><td class="py-2 text-end ltr-nums font-semibold text-emerald-700">- {{ mad($enrollment->discount) }}</td></tr>
+                        <tr><td class="py-2 text-ink-500">{{ __('الخصم') }}</td><td class="py-2 text-end ltr-nums font-semibold text-emerald-700">- {{ mad($enrollment->discount) }}</td></tr>
                     @endif
-                    <tr><td class="py-2 text-ink-500">الصافي المستحق</td><td class="py-2 text-end ltr-nums font-semibold">{{ mad($enrollment->net) }}</td></tr>
-                    <tr><td class="py-2 text-ink-500">مجموع المدفوع إلى تاريخه</td><td class="py-2 text-end ltr-nums font-semibold text-emerald-700">{{ mad($paidToDate) }}</td></tr>
+                    <tr><td class="py-2 text-ink-500">{{ __('الصافي المستحق') }}</td><td class="py-2 text-end ltr-nums font-semibold">{{ mad($enrollment->net) }}</td></tr>
+                    <tr><td class="py-2 text-ink-500">{{ __('مجموع المدفوع إلى تاريخه') }}</td><td class="py-2 text-end ltr-nums font-semibold text-emerald-700">{{ mad($paidToDate) }}</td></tr>
                     <tr>
-                        <td class="py-2 font-semibold text-ink-800">المتبقي</td>
+                        <td class="py-2 font-semibold text-ink-800">{{ __('المتبقي') }}</td>
                         <td class="py-2 text-end ltr-nums font-extrabold {{ $enrollment->remaining > 0 ? 'text-red-600' : 'text-emerald-700' }}">{{ mad($enrollment->remaining) }}</td>
                     </tr>
                 </tbody>
@@ -100,11 +100,11 @@
             <x-status-badge :label="$payment->status" :tone="$payment->status === 'مؤدي بالكامل' ? 'success' : 'warning'" />
             <div class="text-center">
                 <div class="w-40 border-b border-ink-300 mb-1"></div>
-                <p class="text-[11px] text-ink-400">توقيع وختم المركز</p>
+                <p class="text-[11px] text-ink-400">{{ __('توقيع وختم المركز') }}</p>
             </div>
         </div>
 
-        <p class="mt-6 text-center text-[11px] text-ink-400">شكراً لثقتكم — {{ $tenant?->name ?? 'TASYIIR' }} · طُبع في <span class="ltr-nums">{{ now()->format('Y-m-d H:i') }}</span></p>
+        <p class="mt-6 text-center text-[11px] text-ink-400">{{ __('شكراً لثقتكم') }} — {{ $tenant?->name ?? 'TASYIIR' }} · {{ __('طُبع في') }} <span class="ltr-nums">{{ now()->format('Y-m-d H:i') }}</span></p>
         <p class="mt-1 text-center text-[10px] text-ink-300">TASYIIR · IAM Agency</p>
     </div>
 </body>

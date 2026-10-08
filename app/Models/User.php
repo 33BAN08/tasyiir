@@ -29,6 +29,7 @@ class User extends Authenticatable
         'tenant_id',
         'name',
         'email',
+        'locale',
         'password',
         'status',
         'is_platform_admin',

@@ -16,6 +16,6 @@ class StudentController extends Controller
     {
         $student->delete();
 
-        return redirect()->route('students.index')->with('toast', 'تم حذف الطالب بنجاح');
+        return redirect()->route('students.index')->with('toast', __('تم حذف الطالب بنجاح'));
     }
 }

@@ -30,13 +30,16 @@ class Account extends Component
         ];
     }
 
-    protected array $validationAttributes = [
-        'name' => 'الاسم الكامل',
-        'email' => 'البريد الإلكتروني',
-        'current_password' => 'كلمة المرور الحالية',
-        'password' => 'كلمة المرور الجديدة',
-        'password_confirmation' => 'تأكيد كلمة المرور',
-    ];
+    protected function validationAttributes(): array
+    {
+        return [
+            'name' => __('الاسم الكامل'),
+            'email' => __('البريد الإلكتروني'),
+            'current_password' => __('كلمة المرور الحالية'),
+            'password' => __('كلمة المرور الجديدة'),
+            'password_confirmation' => __('تأكيد كلمة المرور'),
+        ];
+    }
 
     public function mount(): void
     {
@@ -60,7 +63,7 @@ class Account extends Component
         $user->save();
 
         $this->reset(['current_password', 'password', 'password_confirmation']);
-        $this->dispatch('toast', message: 'تم حفظ بيانات الحساب بنجاح');
+        $this->dispatch('toast', message: __('تم حفظ بيانات الحساب بنجاح'));
     }
 
     public function render()

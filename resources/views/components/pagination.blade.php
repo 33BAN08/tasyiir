@@ -13,14 +13,14 @@
 <div class="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3.5 border-t border-ink-100">
     @if ($total !== null)
         <p class="text-sm text-ink-500 order-2 sm:order-1">
-            عرض <span class="ltr-nums font-semibold text-ink-700">{{ $from }}–{{ $to }}</span>
-            من <span class="ltr-nums font-semibold text-ink-700">{{ $total }}</span> نتيجة
+            {{ __('عرض') }} <span class="ltr-nums font-semibold text-ink-700">{{ $from }}–{{ $to }}</span>
+            {{ __('من') }} <span class="ltr-nums font-semibold text-ink-700">{{ $total }}</span> {{ __('نتيجة') }}
         </p>
     @endif
 
-    <nav class="flex items-center gap-1 order-1 sm:order-2" aria-label="ترقيم الصفحات">
-        <button type="button" class="btn-icon" {{ $current <= 1 ? 'disabled' : '' }} aria-label="السابق">
-            <x-icon name="chevron-right" class="w-4 h-4" />
+    <nav class="flex items-center gap-1 order-1 sm:order-2" aria-label="{{ __('ترقيم الصفحات') }}">
+        <button type="button" class="btn-icon" {{ $current <= 1 ? 'disabled' : '' }} aria-label="{{ __('السابق') }}">
+            <x-icon name="chevron-right" class="ltr:rotate-180 w-4 h-4" />
         </button>
 
         @if ($start > 1)
@@ -44,8 +44,8 @@
             <button type="button" class="min-w-[2.25rem] h-9 rounded-lg text-sm font-medium text-ink-500 hover:bg-ink-100">{{ $last }}</button>
         @endif
 
-        <button type="button" class="btn-icon" {{ $current >= $last ? 'disabled' : '' }} aria-label="التالي">
-            <x-icon name="chevron-left" class="w-4 h-4" />
+        <button type="button" class="btn-icon" {{ $current >= $last ? 'disabled' : '' }} aria-label="{{ __('التالي') }}">
+            <x-icon name="chevron-left" class="ltr:rotate-180 w-4 h-4" />
         </button>
     </nav>
 </div>

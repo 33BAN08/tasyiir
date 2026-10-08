@@ -39,7 +39,7 @@
     >
         <div class="flex items-center justify-between px-5 py-4 border-b border-ink-100">
             <h2 class="text-base font-bold text-ink-900">{{ $title }}</h2>
-            <button type="button" class="btn-icon" x-on:click="open = false" aria-label="إغلاق">
+            <button type="button" class="btn-icon" x-on:click="open = false" aria-label="{{ __('إغلاق') }}">
                 <x-icon name="x" class="w-4 h-4" />
             </button>
         </div>
