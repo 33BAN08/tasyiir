@@ -12,6 +12,8 @@
     @can('manage-enrollments') <a href="/enrollments" class="btn-primary"><x-icon name="clipboard-list" class="w-4 h-4" /> {{ __('تسجيل جديد') }}</a> @endcan
 </x-page-header>
 
+<x-owner-alerts />
+
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-6">
     @foreach ($stats as $s)
         <x-stat-card :icon="$s['icon']" :label="$s['label']" :value="$s['value']" :tone="$s['tone']" :trend="$s['trend']" />

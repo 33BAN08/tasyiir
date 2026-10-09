@@ -74,5 +74,7 @@ new #[Layout('layouts.guest')] class extends Component
         </button>
     </form>
 
-    <p class="mt-5 text-center text-xs text-ink-400">{{ __('مركز جديد؟') }} <a href="{{ route('register-center') }}" class="font-semibold text-brand-600 hover:text-brand-700">{{ __('سجّل مركزك') }}</a></p>
+    @if (Route::has('register-center'))
+        <p class="mt-5 text-center text-xs text-ink-400">{{ __('مركز جديد؟') }} <a href="{{ route('register-center') }}" class="font-semibold text-brand-600 hover:text-brand-700">{{ __('سجّل مركزك') }}</a></p>
+    @endif
 </div>

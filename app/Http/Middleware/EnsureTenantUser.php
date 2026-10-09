@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -19,6 +20,9 @@ class EnsureTenantUser
         $user = $request->user();
 
         if ($user && $user->isPlatformAdmin()) {
+            // The back office only exists in the hosted edition.
+            abort_unless(Route::has('admin.signups'), 403);
+
             return redirect()->route('admin.signups');
         }
 

@@ -1,6 +1,6 @@
 # TASYIIR
 
-TASYIIR (created by IAM Agency) is a multi-tenant SaaS for tutoring / language / coaching centers, in Arabic (RTL, default) with French and English UI. It is a real Laravel 12 + Livewire 3 + Tailwind application with authentication, single-database multi-tenancy, per-center staff accounts with roles & permissions (owner / reception / accountant + custom roles), a reviewed public signup flow (`/register-center` → platform-admin approval at `/admin` → the center goes live), and every module — Students, Teachers, Courses, Groups, Enrollments, Attendance, Schedule, Payments (with printable receipts), Expenses, Salaries, Notifications, Dashboard, Reports, Statistics and Settings — running on the database. The migration from the Phase 1 mockup is complete; the mock data layer has been removed.
+TASYIIR (created by IAM Agency) is a multi-tenant SaaS for tutoring / language / coaching centers, in Arabic (RTL, default) with French and English UI. It is a real Laravel 12 + Livewire 3 + Tailwind application with authentication, single-database multi-tenancy, per-center staff accounts with roles & permissions (owner / reception / accountant + custom roles), a reviewed public signup flow (`/register-center` → platform-admin approval at `/admin` → the center goes live), and every module — Students, Teachers, Courses, Groups, Enrollments, Attendance, Schedule, Payments (with printable receipts), Expenses, Salaries, Notifications, Dashboard, Reports, Statistics and Settings — running on the database. It ships in two editions from one codebase, switched by `TASYIIR_MODE`: **local** (one center, installed on that center's own Windows PC, offline, licensed) and **saas** (hosted multi-tenant).
 
 See **[SETUP.md](SETUP.md)** for installation, seeded logins (one owner, one receptionist and one accountant per tenant), the module-by-module state and what would be new product surface beyond the original brief.
 
@@ -37,6 +37,13 @@ app/
   Models/Scopes/TenantScope.php
   Support/Analytics.php                     Shared tenant-scoped aggregates (dashboard/reports/statistics/expenses)
   Support/Permissions.php                   Permission catalog + the three built-in roles
+  Support/Mode.php                          local vs saas edition switch
+  Services/CenterProvisioner.php            The one way a center is created (setup wizard, signup, admin approval)
+  Services/DatabaseBackup.php               SQLite VACUUM INTO snapshots, rotation, restore
+  Services/License.php                      Offline Ed25519 licence + machine code (local edition)
+  Livewire/Public/CenterSetup.php           First-run wizard (/setup)
+  Livewire/Settings/{Backup,License}.php    Backup/restore and licence panels
+  Http/Middleware/{RequireSetup,EnsureLicensed,RunDailyBackup}.php
   helpers.php                               mad(), ar_date() (locale-aware), initials(), is_active_route(), is_rtl()
   Http/Middleware/SetLocale.php             Per-request UI language (user → session → default)
 lang/fr.json, lang/en.json                  UI dictionaries keyed by the Arabic source string
@@ -53,7 +60,11 @@ resources/
   views/payments/receipt.blade.php          Printable receipt
   views/components/                         Blade components (stat-card, status-badge, modal, avatar, icon, ...)
   css/app.css, js/app.js                    Tailwind + Alpine stores / Livewire toast bridge
-routes/web.php (permission-gated), routes/auth.php, routes/console.php (enrollments:rollover schedule)
+routes/web.php (edition-aware, permission-gated), routes/auth.php, routes/console.php
+config/tasyiir.php                          Edition, signup, backup and licence settings
+scripts/build-local-release.ps1             Builds the portable Windows package
+scripts/local/*.bat                         install / start / stop / update on a client PC
+tools/license-issuer/                       Vendor-only licence signing (never shipped)
 public/vendor/chart.js, public/fonts, public/icons   Vendored assets (no CDN calls at runtime)
 ```
 

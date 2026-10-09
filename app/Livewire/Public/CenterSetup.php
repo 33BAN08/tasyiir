@@ -2,11 +2,10 @@
 
 namespace App\Livewire\Public;
 
-use App\Models\CenterSignupRequest;
+use App\Http\Middleware\SetLocale;
 use App\Services\CenterProvisioner;
 use App\Support\Mode;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\Rule;
@@ -14,46 +13,42 @@ use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 
 /**
- * Public center signup (hosted edition).
- *
- * With tasyiir.signup_requires_approval off (the default) the center is
- * provisioned immediately through the same CenterProvisioner the local
- * wizard and the admin approval use, and the owner is signed straight in.
- * With it on, this only files a CenterSignupRequest for a platform admin to
- * review — the original flow, unchanged.
+ * First-run wizard of the local edition: the center owner creates their own
+ * center and login, with nobody to approve it. Reachable only while no center
+ * exists — afterwards /setup is a 404 forever.
  */
-class CenterSignup extends Component
+class CenterSetup extends Component
 {
     public string $center_name = '';
 
     public string $owner_name = '';
 
-    public string $owner_email = '';
-
     public string $owner_phone = '';
+
+    public string $owner_email = '';
 
     public string $password = '';
 
     public string $password_confirmation = '';
 
-    public bool $submitted = false;
+    public string $locale = 'ar';
+
+    public function mount(): void
+    {
+        abort_unless(Mode::needsSetup(), 404);
+
+        $this->locale = app()->getLocale();
+    }
 
     protected function rules(): array
     {
         return [
             'center_name' => ['required', 'string', 'min:2', 'max:120'],
             'owner_name' => ['required', 'string', 'min:2', 'max:255'],
-            'owner_email' => [
-                'required', 'email', 'max:255',
-                // Not an existing login, and — while requests are reviewed — not
-                // already waiting. A rejected applicant may resubmit.
-                Rule::unique('users', 'email'),
-                Rule::when(Mode::signupRequiresApproval(), [
-                    Rule::unique('center_signup_requests', 'owner_email')->where(fn ($q) => $q->where('status', '!=', 'rejected')),
-                ]),
-            ],
             'owner_phone' => ['nullable', 'string', 'max:30'],
+            'owner_email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'locale' => ['required', Rule::in(SetLocale::SUPPORTED)],
         ];
     }
 
@@ -61,64 +56,42 @@ class CenterSignup extends Component
     {
         return [
             'center_name' => __('اسم المركز'),
-            'owner_name' => __('اسم المسؤول'),
-            'owner_email' => __('البريد الإلكتروني'),
+            'owner_name' => __('اسم المدير'),
             'owner_phone' => __('رقم الهاتف'),
+            'owner_email' => __('البريد الإلكتروني'),
             'password' => __('كلمة المرور'),
             'password_confirmation' => __('تأكيد كلمة المرور'),
-        ];
-    }
-
-    protected function messages(): array
-    {
-        return [
-            'owner_email.unique' => __('هذا البريد الإلكتروني مستخدم بالفعل أو لديه طلب قيد المراجعة.'),
+            'locale' => __('لغة الواجهة'),
         ];
     }
 
     public function submit()
     {
+        abort_unless(Mode::needsSetup(), 404);
         $this->ensureIsNotRateLimited();
 
         $data = $this->validate();
 
-        if (Mode::signupRequiresApproval()) {
-            CenterSignupRequest::create([
-                'center_name' => trim($data['center_name']),
-                'owner_name' => trim($data['owner_name']),
-                'owner_email' => mb_strtolower(trim($data['owner_email'])),
-                'owner_phone' => $data['owner_phone'] ?: null,
-                'password' => Hash::make($data['password']), // never stored in clear
-                'status' => 'pending',
-            ]);
-
-            RateLimiter::clear($this->throttleKey());
-            $this->reset(['password', 'password_confirmation']);
-            $this->submitted = true;
-
-            return null;
-        }
-
-        // Instant signup: the center is live as soon as the form is submitted.
         ['owner' => $owner] = app(CenterProvisioner::class)->provision(
             $data['center_name'],
             $data['owner_name'],
             $data['owner_email'],
             $data['password'],
             $data['owner_phone'] ?: null,
-            app()->getLocale(),
+            $data['locale'],
         );
 
         RateLimiter::clear($this->throttleKey());
 
         Auth::login($owner);
         Session::regenerate();
+        Session::put('locale', $data['locale']);
 
         return redirect()->route('dashboard')
             ->with('toast', __('تم إنشاء مركزك بنجاح. مرحباً بك في TASYIIR!'));
     }
 
-    /** Public form: cap attempts per IP. */
+    /** The wizard is public until it runs once; don't let it be hammered. */
     protected function ensureIsNotRateLimited(): void
     {
         if (! RateLimiter::tooManyAttempts($this->throttleKey(), 10)) {
@@ -136,13 +109,13 @@ class CenterSignup extends Component
 
     protected function throttleKey(): string
     {
-        return 'center-signup|'.request()->ip();
+        return 'center-setup|'.request()->ip();
     }
 
     public function render()
     {
-        return view('livewire.public.center-signup')
+        return view('livewire.public.center-setup')
             ->layout('layouts.guest', ['maxWidth' => 'max-w-lg'])
-            ->title(__('تسجيل مركز جديد'));
+            ->title(__('إعداد المركز'));
     }
 }

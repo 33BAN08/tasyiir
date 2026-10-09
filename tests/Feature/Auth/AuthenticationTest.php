@@ -54,32 +54,25 @@ class AuthenticationTest extends TestCase
         $this->assertGuest();
     }
 
-    public function test_navigation_menu_can_be_rendered(): void
+    public function test_the_app_shell_renders_for_a_center_user(): void
     {
-        $user = User::factory()->create();
+        ['owner' => $owner] = app(\App\Services\CenterProvisioner::class)
+            ->provision('مركز الاختبار', 'المدير', 'owner@test.test', 'secret1234');
 
-        $this->actingAs($user);
-
-        $response = $this->get('/dashboard');
-
-        $response
+        $this->actingAs($owner)->get('/dashboard')
             ->assertOk()
-            ->assertSeeVolt('layout.navigation');
+            ->assertSee('مركز الاختبار')
+            ->assertSee(route('logout'));
     }
 
     public function test_users_can_logout(): void
     {
-        $user = User::factory()->create();
+        ['owner' => $owner] = app(\App\Services\CenterProvisioner::class)
+            ->provision('مركز الاختبار', 'المدير', 'owner@test.test', 'secret1234');
 
-        $this->actingAs($user);
-
-        $component = Volt::test('layout.navigation');
-
-        $component->call('logout');
-
-        $component
-            ->assertHasNoErrors()
-            ->assertRedirect('/');
+        $this->actingAs($owner)
+            ->post('/logout')
+            ->assertRedirect(route('login'));
 
         $this->assertGuest();
     }

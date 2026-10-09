@@ -11,7 +11,11 @@
         </div>
     @else
         <h1 class="text-lg font-bold text-ink-900 mb-1">{{ __('تسجيل مركز جديد') }}</h1>
-        <p class="text-sm text-ink-500 mb-6">{{ __('أدخل بيانات مركزك وحساب المسؤول. يُراجع الطلب من طرف فريق TASYIIR قبل تفعيل المركز.') }}</p>
+        <p class="text-sm text-ink-500 mb-6">
+            {{ \App\Support\Mode::signupRequiresApproval()
+                ? __('أدخل بيانات مركزك وحساب المسؤول. يُراجع الطلب من طرف فريق TASYIIR قبل تفعيل المركز.')
+                : __('أدخل بيانات مركزك وحساب المسؤول. يُفتح مركزك مباشرة بعد الإرسال.') }}
+        </p>
 
         <form wire:submit="submit" class="space-y-4">
             <div>
@@ -61,7 +65,8 @@
             </div>
 
             <button type="submit" class="btn-primary w-full justify-center" wire:loading.attr="disabled" wire:target="submit">
-                <x-icon name="check" class="w-4 h-4" /> {{ __('إرسال طلب التسجيل') }}
+                <x-icon name="check" class="w-4 h-4" />
+                {{ \App\Support\Mode::signupRequiresApproval() ? __('إرسال طلب التسجيل') : __('إنشاء المركز والبدء') }}
             </button>
         </form>
 

@@ -1,10 +1,10 @@
 # TASYIIR — Setup
 
-TASYIIR (created by IAM Agency) is a real Laravel 12 + Livewire 3 + Tailwind application. The migration from the Phase 1 mockup is **complete**: every module runs on the database with tenant scoping, and `app/Support/Mock` no longer exists. See "What's real" below for the exact state, and "Not built" for what would be new product surface beyond the original brief.
+TASYIIR (created by IAM Agency) is a real Laravel 12 + Livewire 3 + Tailwind application. It ships in two editions from one codebase: the **local edition** (one center, installed on that center's own Windows PC, fully offline) and the **hosted edition** (multi-tenant SaaS). See "Local edition" below for building, installing and licensing client copies. The migration from the Phase 1 mockup is **complete**: every module runs on the database with tenant scoping, and `app/Support/Mock` no longer exists. See "What's real" below for the exact state, and "Not built" for what would be new product surface beyond the original brief.
 
 ## Requirements
 
-- PHP 8.2+ with the `sqlite3` / `pdo_sqlite` extensions (XAMPP's default build has them) and **`gd` enabled** — in XAMPP, uncomment `extension=gd` in `C:\xampp\php\php.ini` (needed by the Excel backup/import)
+- PHP 8.2+ with the `sqlite3` / `pdo_sqlite` extensions (XAMPP's default build has them) and **`gd` + `sodium` enabled** — in XAMPP, uncomment `extension=gd` and `extension=sodium` in `C:\xampp\php\php.ini` (Excel import/export and licence signatures)
 - Composer 2
 - Node.js 18+ and npm (only for building CSS/JS)
 
@@ -98,10 +98,105 @@ The core feature list from the original brief is complete. Candidates for a next
 - The Settings tabs الإشعارات / المظهر and the header global search modal are still UI-only (اللغة is real).
 - **Translated notifications** — notification titles/bodies are stored as Arabic text when the event happens, so they show in Arabic regardless of the reader's language.
 
+## Local edition (selling TASYIIR as an offline desktop install)
+
+One center, one Windows PC, no hosting and no internet. The same code runs the
+hosted SaaS — everything below is switched by `TASYIIR_MODE`.
+
+| | `TASYIIR_MODE=local` | `TASYIIR_MODE=saas` |
+|---|---|---|
+| Creating a center | first-run wizard at `/setup`, no approval | `/register-center` (instant, or reviewed when `TASYIIR_SIGNUP_REQUIRES_APPROVAL=true`) |
+| `/register-center`, `/admin` | not registered (404) | available |
+| Licence check | yes (14-day trial, then a signed licence) | skipped |
+| Database backups | automatic daily + on start, restore available | manual Excel export only |
+
+### Build the release package
+
+```bash
+# once: put a portable PHP in scripts/php-runtime/
+#   https://windows.php.net/download/  →  PHP 8.3+ "VS16 x64 Non Thread Safe" ZIP
+#   extract so that scripts/php-runtime/php.exe exists
+powershell -ExecutionPolicy Bypass -File scripts/build-local-release.ps1
+```
+
+Produces `release/tasyiir-local-v<version>.zip` (~45 MB) containing `php/`,
+`app/` (production dependencies, built assets, no tests/tools/NOTES/.env/DB),
+`install.bat`, `start.bat`, `stop.bat`, `update.bat` and the Arabic/French
+client guides. Options: `-Version 1.2.0`, `-SkipAssets`, `-SkipComposer`.
+
+### Install on a client PC
+
+1. Unzip to a permanent folder, e.g. `C:\TASYIIR` (not the Desktop, not a
+   synced OneDrive folder).
+2. Run `install.bat`: it writes `.env` from `.env.local.example`, generates the
+   app key, creates `database/database.sqlite`, migrates, caches config/routes/
+   views, creates Desktop + Startup shortcuts, and launches the app.
+3. The browser opens `/setup`: the owner enters the center name, their name,
+   phone, e-mail, password and interface language. That creates the center and
+   the owner account (role مدير المركز) and signs them in. The center is
+   **empty** — no demo data is ever seeded by an install path.
+4. `/setup` 404s from then on; staff accounts are added in Settings → المستخدمون.
+
+Day to day the client uses the Desktop shortcut (`start.bat`) and `stop.bat`.
+
+### LAN mode (other PCs in the center)
+
+The data lives on the one PC. To let other machines use it, set
+`TASYIIR_HOST=0.0.0.0` in `app/.env`, allow the port once:
+
+```
+netsh advfirewall firewall add rule name="TASYIIR" dir=in action=allow protocol=TCP localport=8000
+```
+
+and restart with `start.bat`, which then prints `http://<this-pc-ip>:8000`.
+Give the PC a static local IP. **Limit:** `php artisan serve` handles one
+request at a time — fine for 1–3 simultaneous users. Above that, point Apache
+(XAMPP/Laragon) at `app/public` on the server PC instead; nothing in the app
+changes.
+
+### Backups and restore
+
+* A snapshot is taken automatically on the first page of each day and by
+  `start.bat`, using SQLite `VACUUM INTO` (never a raw copy of a live file).
+  The last 30 are kept; `php artisan tasyiir:backup [--force]` runs one by hand.
+* Settings → النسخ الاحتياطي (owner only) sets the folder — **point it at a
+  second drive, a USB key or a synced Drive/OneDrive folder** — takes a backup
+  now, downloads a `.sqlite` snapshot, and restores one.
+* Restore asks the owner to type `استعادة`, verifies the file really is a
+  TASYIIR database, takes a safety copy of the current state first, then swaps
+  it in and signs everyone out.
+* The dashboard warns the owner when the last backup is over 3 days old or the
+  folder is not writable.
+
+### Licences
+
+```bash
+cd tools/license-issuer
+php keygen.php                      # once, ever: keep keys/private.key secret
+# put the printed TASYIIR_LICENSE_PUBLIC_KEY in the release .env
+
+php issue.php --machine=A1B2-C3D4-E5F6-7890 --center="مركز النجاح" --expires=2027-12-31
+```
+
+The client copies their machine code from Settings → الترخيص (derived from the
+motherboard UUID, so a copied install does not run elsewhere) and pastes the
+licence back there. A fresh install gets a 14-day trial. When the trial or
+licence ends the modules redirect to the licence page, while **login, the
+licence page and the backup downloads keep working and no data is touched**.
+Builds with an empty public key never expire (development builds).
+
+### Updating an install (over AnyDesk)
+
+From the new package folder: `update.bat "C:\TASYIIR"` — stops the server,
+takes a backup, replaces the application files while keeping `.env`,
+`database/`, `storage/app`, `storage/backups` and `licence.key`, migrates,
+re-caches and restarts.
+
 ## Useful commands
 
 ```bash
-php artisan migrate:fresh --seed   # reset and reseed both tenants (logs everyone out)
+php artisan migrate:fresh --seed   # reset and reseed both tenants (DEV ONLY — never in a release/install path)
+php artisan tasyiir:backup         # take a database snapshot now (local edition)
 php artisan route:list             # all routes
 php artisan enrollments:rollover   # run the monthly unpaid rollover by hand
 npm run build                      # rebuild Tailwind/JS into public/build

@@ -5,6 +5,7 @@ namespace App\Livewire\Admin;
 use App\Models\CenterSignupRequest;
 use App\Models\Tenant;
 use App\Models\User;
+use App\Services\CenterProvisioner;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -49,12 +50,13 @@ class SignupRequests extends Component
         }
 
         DB::transaction(function () use ($request) {
-            // Same code path as the local-install command (Tenant::provision).
-            ['tenant' => $tenant] = Tenant::provision(
+            // Same code path as the local first-run wizard and instant signup.
+            ['tenant' => $tenant] = app(CenterProvisioner::class)->provision(
                 $request->center_name,
                 $request->owner_name,
                 $request->owner_email,
                 $request->password, // already hashed at signup; the cast leaves it as-is
+                $request->owner_phone,
             );
 
             $request->forceFill([

@@ -6,7 +6,7 @@
 
 <x-page-header title="{{ __('الإعدادات') }}" subtitle="{{ __('إدارة إعدادات المركز والحساب والنظام') }}" />
 
-<div class="grid grid-cols-1 lg:grid-cols-4 gap-6" x-data="{ tab: 'center' }">
+<div class="grid grid-cols-1 lg:grid-cols-4 gap-6" x-data="{ tab: '{{ $openTab }}' }">
     <!-- Side nav -->
     <div class="lg:col-span-1">
         <div class="card p-2 flex lg:flex-col gap-1 overflow-x-auto">
@@ -16,11 +16,13 @@
                 ['key' => 'users', 'label' => __('المستخدمون'), 'icon' => 'users', 'can' => 'manage-users'],
                 ['key' => 'roles', 'label' => __('الصلاحيات'), 'icon' => 'shield-check', 'can' => 'manage-users'],
                 ['key' => 'backup', 'label' => __('النسخ الاحتياطي'), 'icon' => 'download', 'can' => 'manage-settings'],
+                ['key' => 'license', 'label' => __('الترخيص'), 'icon' => 'shield-check', 'can' => 'manage-settings', 'only' => 'local'],
                 ['key' => 'notifications', 'label' => __('الإشعارات'), 'icon' => 'bell'],
                 ['key' => 'language', 'label' => __('اللغة'), 'icon' => 'languages'],
                 ['key' => 'appearance', 'label' => __('المظهر'), 'icon' => 'palette'],
             ] as $item)
                 @continue (isset($item['can']) && ! auth()->user()->can($item['can']))
+                @continue (($item['only'] ?? null) === 'local' && ! \App\Support\Mode::isLocal())
                 <button
                     type="button"
                     x-on:click="tab = '{{ $item['key'] }}'"
@@ -63,6 +65,13 @@
             <div x-show="tab === 'backup'" class="card p-6">
                 <livewire:settings.backup />
             </div>
+
+            @if (\App\Support\Mode::isLocal())
+                <!-- الترخيص -->
+                <div x-show="tab === 'license'" class="card p-6">
+                    <livewire:settings.license />
+                </div>
+            @endif
         @endcan
 
         <!-- الإشعارات -->

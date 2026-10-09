@@ -1,0 +1,50 @@
+TASYIIR — édition locale
+========================
+
+Installation (une seule fois)
+-----------------------------
+1. Copiez ce dossier à un endroit définitif, par exemple C:\TASYIIR
+   (évitez le Bureau et les dossiers synchronisés type OneDrive).
+2. Double-cliquez sur install.bat et attendez la fin.
+3. Le navigateur s'ouvre sur la page de création du centre : saisissez le nom
+   du centre, le nom du directeur, le téléphone, l'e-mail et le mot de passe.
+   Ce compte est le compte directeur : notez bien son mot de passe.
+4. C'est terminé. Un raccourci TASYIIR est créé sur le Bureau, et le logiciel
+   se lance automatiquement au démarrage de Windows.
+
+Utilisation quotidienne
+-----------------------
+- Double-cliquez sur le raccourci TASYIIR (ou start.bat).
+- Pour arrêter le logiciel : stop.bat.
+- Le logiciel fonctionne entièrement hors ligne : aucune connexion Internet
+  n'est nécessaire.
+
+Sauvegardes — important
+-----------------------
+- Une sauvegarde de la base est faite automatiquement une fois par jour et à
+  chaque démarrage. Les 30 dernières sont conservées.
+- Dans Paramètres → النسخ الاحتياطي vous pouvez : changer le dossier de
+  sauvegarde, en lancer une immédiatement, télécharger une sauvegarde, ou
+  restaurer une sauvegarde.
+- Choisissez un dossier sur un AUTRE disque, une clé USB ou un dossier
+  Google Drive / OneDrive synchronisé. Une sauvegarde sur le même disque ne
+  protège pas si l'ordinateur tombe en panne ou est volé.
+
+Plusieurs ordinateurs dans le centre
+------------------------------------
+Les données vivent sur CET ordinateur. Pour que d'autres postes y accèdent :
+1. Dans app\.env, mettez TASYIIR_HOST=0.0.0.0
+2. Autorisez le port dans le pare-feu Windows (en administrateur) :
+   netsh advfirewall firewall add rule name="TASYIIR" dir=in action=allow protocol=TCP localport=8000
+3. Redémarrez avec start.bat : l'adresse à ouvrir sur les autres postes
+   s'affiche (http://<ip-de-ce-pc>:8000).
+Cet ordinateur doit rester allumé. Au-delà de 3 utilisateurs simultanés,
+prévoyez Apache/Laragon sur le poste serveur.
+
+Licence
+-------
+Les 14 premiers jours sont en période d'essai. Dans Paramètres → الترخيص,
+copiez le « code de l'appareil » et envoyez-le à IAM Agency pour recevoir
+votre licence, puis collez-la au même endroit.
+
+Support : IAM Agency
