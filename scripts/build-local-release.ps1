@@ -68,8 +68,12 @@ $excludeDirs = @('.git', '.claude', '.github', 'node_modules', 'tests', 'release
                  'storage\logs', 'storage\backups',
                  'storage\framework\sessions', 'storage\framework\views', 'storage\framework\cache')
 $excludeFiles = @('.env', '.env.example', 'database.sqlite', 'NOTES.md', '*.log', '*.zip',
-                  'phpunit.xml', 'tasyiir-build-*.zip',
-                  'config.php', 'routes-v7.php', 'events.php', 'packages.php', 'services.php')
+                  'phpunit.xml', 'tasyiir-build-*.zip')
+# Note: the compiled caches in bootstrap/cache are NOT excluded by name here.
+# robocopy /XF matches a bare filename in every folder it walks, so naming
+# config.php / events.php / services.php strips unrelated vendor files too
+# (it quietly deleted laravel/prompts' Concerns/Events.php and broke every
+# artisan command in the package). They are removed by path below instead.
 
 $robocopyArgs = @($root, $stagingApp, '/E', '/NFL', '/NDL', '/NJH', '/NJS', '/NP')
 $robocopyArgs += '/XD'; $robocopyArgs += ($excludeDirs | ForEach-Object { Join-Path $root $_ })
@@ -84,11 +88,6 @@ foreach ($dir in @('storage\logs', 'storage\backups', 'storage\framework\session
     Set-Content -Path (Join-Path $stagingApp "$dir\.gitignore") -Value "*`n!.gitignore" -Encoding ascii
 }
 Remove-Item (Join-Path $stagingApp 'database\database.sqlite') -ErrorAction SilentlyContinue
-# Belt and braces: compiled caches must never travel with the package — a
-# bootstrap/cache/config.php would carry the developer's .env into every
-# client install and break key:generate on first run.
-Get-ChildItem (Join-Path $stagingApp 'bootstrap\cache') -Filter '*.php' -ErrorAction SilentlyContinue | Remove-Item -Force
-New-Item -ItemType Directory -Force -Path (Join-Path $stagingApp 'bootstrap\cache') | Out-Null
 
 if (-not (Test-Path (Join-Path $stagingApp 'public\build\manifest.json'))) {
     Fail 'public\build\manifest.json is missing — run npm run build (do not pass -SkipAssets on a clean checkout).'
@@ -103,6 +102,14 @@ if (-not $SkipComposer) {
         if ($LASTEXITCODE -ne 0) { Fail 'composer install failed.' }
     } finally { Pop-Location }
 }
+
+# The compiled caches must never travel with the package: a shipped
+# bootstrap/cache/config.php carries the developer's .env into every client
+# install and makes key:generate fail on first run. This runs AFTER composer,
+# because composer's post-autoload-dump re-runs `artisan package:discover` and
+# writes packages.php/services.php back into that folder.
+Get-ChildItem (Join-Path $stagingApp 'bootstrap\cache') -Filter '*.php' -ErrorAction SilentlyContinue | Remove-Item -Force
+New-Item -ItemType Directory -Force -Path (Join-Path $stagingApp 'bootstrap\cache') | Out-Null
 
 # --- portable PHP + php.ini ------------------------------------------------
 Step 'Adding the PHP runtime'

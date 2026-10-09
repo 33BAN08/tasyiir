@@ -63,6 +63,7 @@ resources/
 routes/web.php (edition-aware, permission-gated), routes/auth.php, routes/console.php
 config/tasyiir.php                          Edition, signup, backup and licence settings
 scripts/build-local-release.ps1             Builds the portable Windows package
+scripts/build-saas-release.ps1              Builds release/TASYIIR-main.zip (hosted edition)
 scripts/local/*.bat                         install / start / stop / update on a client PC
 tools/license-issuer/                       Vendor-only licence signing (never shipped)
 public/vendor/chart.js, public/fonts, public/icons   Vendored assets (no CDN calls at runtime)

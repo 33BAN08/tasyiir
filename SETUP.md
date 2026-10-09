@@ -90,7 +90,7 @@ Everything below is database-backed and tenant-scoped through `App\Models\Concer
 
 The core feature list from the original brief is complete. Candidates for a next phase:
 
-- **Fully automatic provisioning** — signup is self-serve but gated by platform-admin approval by design; there is no instant activation, email verification, billing or trial logic.
+- **Billing** — hosted signup can now provision instantly (`TASYIIR_SIGNUP_REQUIRES_APPROVAL=false`) or stay gated by platform-admin approval, and the local edition has an offline trial and licence; there is still no email verification and no payment or subscription handling anywhere.
 - **Password reset by email** — no mail is sent anywhere; an owner resets a staff member's password from the Team panel.
 - **PDF export** on Reports — the button shows a placeholder toast; the printable receipt covers the immediate need.
 - **Salary period history** — `salary_payments` holds one running balance per teacher, not monthly payroll records.
@@ -123,6 +123,24 @@ Produces `release/tasyiir-local-v<version>.zip` (~45 MB) containing `php/`,
 `app/` (production dependencies, built assets, no tests/tools/NOTES/.env/DB),
 `install.bat`, `start.bat`, `stop.bat`, `update.bat` and the Arabic/French
 client guides. Options: `-Version 1.2.0`, `-SkipAssets`, `-SkipComposer`.
+
+The licence public key travels in `.env.local.example`, which `install.bat`
+copies to the client's `.env` — so paste it there **before** building, not
+after. A build with an empty key can never activate a licence and never
+expires.
+
+### Package the hosted edition
+
+```bash
+powershell -ExecutionPolicy Bypass -File scripts/build-saas-release.ps1
+```
+
+Produces `release/TASYIIR-main.zip`: the same application at the root of the
+zip, production dependencies, built assets and `.env.example` with
+`TASYIIR_MODE=saas` — no PHP runtime and no `.bat` launchers, because the host
+provides those. On the server: unzip, `cp .env.example .env`, set `APP_KEY`
+(`php artisan key:generate`), `APP_URL` and the database, then `php artisan
+migrate --force` and `php artisan optimize`. Option: `-Name other-name`.
 
 ### Install on a client PC
 
@@ -173,7 +191,8 @@ changes.
 ```bash
 cd tools/license-issuer
 php keygen.php                      # once, ever: keep keys/private.key secret
-# put the printed TASYIIR_LICENSE_PUBLIC_KEY in the release .env
+# paste the printed TASYIIR_LICENSE_PUBLIC_KEY into .env.local.example
+# BEFORE building: install.bat copies that file to the client's .env
 
 php issue.php --machine=A1B2-C3D4-E5F6-7890 --center="مركز النجاح" --expires=2027-12-31
 ```
