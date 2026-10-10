@@ -18,6 +18,9 @@ class DashboardController extends Controller
             'growth' => Analytics::studentGrowthByMonth(6),
             'recentEnrollments' => Analytics::recentEnrollments(5),
             'upcoming' => Analytics::upcomingClassesToday(4),
+            'unnotified' => auth()->user()->can('manage-attendance')
+                ? Analytics::unnotifiedAbsencesToday()
+                : ['count' => 0, 'group_id' => null],
         ]);
     }
 }

@@ -140,9 +140,16 @@
         <div x-show="tab === 'attendance'" class="card overflow-hidden">
             <div class="divide-y divide-ink-100">
                 @forelse ($attendanceHistory as $h)
-                    <div class="flex items-center justify-between px-5 py-3.5">
+                    <div class="flex flex-wrap items-center gap-3 px-5 py-3.5">
                         <span class="ltr-nums text-sm text-ink-600">{{ $h->date->format('Y-m-d') }}</span>
                         <x-status-badge :label="$h->state" :tone="$stateTone[$h->state] ?? 'neutral'" />
+                        <div class="ms-auto">
+                            @if ($h->isNotifiable())
+                                @can('manage-attendance')
+                                    <livewire:attendance.notify-button :record="$h" :key="'student-nb-'.$h->id.'-'.$h->updated_at?->timestamp" />
+                                @endcan
+                            @endif
+                        </div>
                     </div>
                 @empty
                     <x-empty-state icon="calendar-check" title="{{ __('لا يوجد سجل حضور بعد') }}" />

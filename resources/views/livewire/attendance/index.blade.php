@@ -45,6 +45,42 @@
         <x-stat-card icon="x" label="{{ __('غائب') }}" :value="$summary['absent']" tone="rose" />
     </div>
 
+    @can('manage-attendance')
+        @if ($toNotify->isNotEmpty())
+            <div class="card mb-6 overflow-hidden">
+                <div class="flex flex-wrap items-center justify-between gap-2 px-5 py-3.5 border-b border-ink-100 bg-ink-50/60">
+                    <h2 class="flex items-center gap-2 text-sm font-bold text-ink-800">
+                        <x-icon name="message-circle" class="w-4 h-4 text-emerald-600" />
+                        {{ __('إشعار أولياء الأمور') }}
+                    </h2>
+                    <span class="text-xs {{ $notifiedCount === $toNotify->count() ? 'text-emerald-700' : 'text-ink-500' }}">
+                        {{ __('تم إشعار :done من :total', ['done' => $notifiedCount, 'total' => $toNotify->count()]) }}
+                    </span>
+                </div>
+
+                <div class="divide-y divide-ink-100">
+                    @foreach ($toNotify as $record)
+                        @php ['phone' => $notifyPhone, 'isGuardian' => $isGuardian] = $record->notifyPhone(); @endphp
+                        <div class="flex flex-wrap items-center gap-3 px-5 py-3" wire:key="notify-{{ $record->id }}">
+                            <div class="min-w-0 flex-1">
+                                <p class="font-semibold text-ink-800 truncate">
+                                    <a href="{{ route('students.show', $record->student_id) }}" class="hover:text-brand-700">{{ $record->student?->name }}</a>
+                                </p>
+                                <p class="text-xs text-ink-400 ltr-nums">{{ $notifyPhone ?: __('لا يوجد رقم هاتف صالح') }}</p>
+                            </div>
+                            <x-status-badge :label="$record->state" :tone="$stateTone[$record->state] ?? 'neutral'" />
+                            <livewire:attendance.notify-button :record="$record" :key="'nb-'.$record->id.'-'.$record->updated_at?->timestamp" />
+                        </div>
+                    @endforeach
+                </div>
+
+                <p class="px-5 py-2.5 text-[11px] text-ink-400 border-t border-ink-100">
+                    {{ __('يفتح الزر واتساب برسالة جاهزة — تبقى عملية الإرسال بيدك.') }}
+                </p>
+            </div>
+        @endif
+    @endcan
+
     <div class="card overflow-hidden relative">
         <div wire:loading.delay wire:target="groupId,date" class="absolute inset-0 bg-white/60 z-10 flex items-center justify-center">
             <x-icon name="loader-circle" class="w-6 h-6 text-brand-600 animate-spin" />

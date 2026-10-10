@@ -116,6 +116,6 @@ return [
     |
     */
 
-    'version' => env('TASYIIR_VERSION', '1.1.0'),
+    'version' => env('TASYIIR_VERSION', '1.2.0'),
 
 ];

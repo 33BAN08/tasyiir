@@ -52,7 +52,7 @@ const icons = [
   'credit-card', 'wallet-cards', 'sun', 'moon', 'sparkles', 'timer', 'gift', 'message-circle', 'hash', 'id-card',
   'square-check-big', 'square', 'minus', 'circle-dot', 'lightbulb', 'megaphone', 'wrench',
   'droplet', 'zap', 'package', 'briefcase-business', 'notebook-pen', 'lock', 'languages',
-  'layers', 'list-checks', 'percent', 'arrow-left', 'arrow-right', 'pause', 'play', 'shield-off',
+  'layers', 'list-checks', 'copy', 'percent', 'arrow-left', 'arrow-right', 'pause', 'play', 'shield-off',
 ];
 // lucide-static renamed a few icons; map our stable template-facing names to the current file.
 const aliases = {

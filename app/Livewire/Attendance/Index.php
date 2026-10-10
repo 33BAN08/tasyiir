@@ -5,6 +5,7 @@ namespace App\Livewire\Attendance;
 use App\Models\AttendanceRecord;
 use App\Models\Group;
 use App\Models\Student;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 
@@ -45,6 +46,16 @@ class Index extends Component
         $this->loadStates();
     }
 
+    /**
+     * A child NotifyButton just stamped a record. Nothing to do here beyond
+     * re-rendering, which is what refreshes the "تم إشعار 3 من 5" counter.
+     */
+    #[On('parent-notified')]
+    public function refreshNotifications(): void
+    {
+        //
+    }
+
     public function setState(int $studentId, string $state): void
     {
         if (array_key_exists($studentId, $this->states) && in_array($state, AttendanceRecord::STATES, true)) {
@@ -74,7 +85,17 @@ class Index extends Component
                 ->whereDate('date', $this->date)
                 ->first() ?? new AttendanceRecord(['student_id' => $studentId, 'date' => $this->date]);
 
-            $record->fill(['tenant_id' => $tenantId, 'group_id' => (int) $this->groupId, 'state' => $state])->save();
+            $attributes = ['tenant_id' => $tenantId, 'group_id' => (int) $this->groupId, 'state' => $state];
+
+            // A corrected state is a different fact about the student, so the
+            // old notification no longer describes it: the parent has to be
+            // told again (or, if they are present now, not at all).
+            if ($record->exists && $record->state !== $state) {
+                $attributes['notified_at'] = null;
+                $attributes['notified_by'] = null;
+            }
+
+            $record->fill($attributes)->save();
         }
 
         $this->dispatch('toast', message: __('تم حفظ الحضور بنجاح'));
@@ -119,12 +140,27 @@ class Index extends Component
             ? AttendanceRecord::whereIn('student_id', $roster->pluck('id'))->whereDate('date', $this->date)->count()
             : 0;
 
+        // Driven by what is SAVED, not by the states being edited: before the
+        // sheet is saved there is nothing to notify about yet, and a past date
+        // that was saved weeks ago still offers its buttons.
+        $toNotify = $this->groupId && $this->date
+            ? AttendanceRecord::with(['student', 'notifier'])
+                ->whereIn('student_id', $roster->pluck('id'))
+                ->whereDate('date', $this->date)
+                ->notifiable()
+                ->get()
+                ->sortBy(fn ($r) => $r->student?->name)
+                ->values()
+            : collect();
+
         return view('livewire.attendance.index', [
             'groups' => $groups,
             'group' => $group,
             'roster' => $roster,
             'summary' => $summary,
             'savedCount' => $savedCount,
+            'toNotify' => $toNotify,
+            'notifiedCount' => $toNotify->whereNotNull('notified_at')->count(),
         ])->extends('layouts.app')->section('content')->title(__('الحضور'));
     }
 }

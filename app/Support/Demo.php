@@ -52,19 +52,9 @@ class Demo
         return 'https://wa.me/'.$number.($text ? '?text='.rawurlencode($text) : '');
     }
 
-    /** wa.me link to a center's own phone (Moroccan 06/07 numbers → 2126/2127). */
+    /** wa.me link to a center's own phone — same number rules as everywhere else. */
     public static function whatsappTo(?string $phone): ?string
     {
-        $digits = preg_replace('/\D+/', '', (string) $phone);
-
-        if ($digits === '') {
-            return null;
-        }
-
-        if (str_starts_with($digits, '0')) {
-            $digits = '212'.substr($digits, 1);
-        }
-
-        return 'https://wa.me/'.$digits;
+        return WhatsApp::link($phone);
     }
 }

@@ -14,6 +14,21 @@
 
 <x-owner-alerts />
 
+@if ($unnotified['count'] > 0)
+    <div class="card mb-6 p-4 flex flex-col sm:flex-row sm:items-center gap-3 border-amber-200 bg-amber-50">
+        <span class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-amber-100 text-amber-700 shrink-0">
+            <x-icon name="message-circle" class="w-5 h-5" />
+        </span>
+        <div class="flex-1 min-w-0">
+            <p class="text-sm font-semibold text-ink-800">{{ __('غيابات اليوم غير المُبلَّغ عنها') }}</p>
+            <p class="text-xs text-ink-600">{{ __(':count حالة بانتظار إشعار ولي الأمر.', ['count' => $unnotified['count']]) }}</p>
+        </div>
+        <a href="{{ route('attendance.index', array_filter(['group' => $unnotified['group_id'], 'date' => today()->toDateString()])) }}" class="btn-primary shrink-0">
+            <x-icon name="message-circle" class="w-4 h-4" /> {{ __('إشعار أولياء الأمور') }}
+        </a>
+    </div>
+@endif
+
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-6">
     @foreach ($stats as $s)
         <x-stat-card :icon="$s['icon']" :label="$s['label']" :value="$s['value']" :tone="$s['tone']" :trend="$s['trend']" />

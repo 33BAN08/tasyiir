@@ -81,6 +81,26 @@ class Analytics
         ];
     }
 
+    /**
+     * Today's absences and lateness whose parent has not been warned yet,
+     * with the first group concerned so the dashboard can link straight at it.
+     *
+     * @return array{count: int, group_id: ?int}
+     */
+    public static function unnotifiedAbsencesToday(): array
+    {
+        $records = AttendanceRecord::whereDate('date', today())
+            ->notifiable()
+            ->notNotified()
+            ->orderBy('group_id')
+            ->get(['id', 'group_id']);
+
+        return [
+            'count' => $records->count(),
+            'group_id' => $records->first()?->group_id,
+        ];
+    }
+
     /** labels / revenue (payments) / expenses per month, oldest first. */
     public static function revenueByMonth(int $months = 6): array
     {
