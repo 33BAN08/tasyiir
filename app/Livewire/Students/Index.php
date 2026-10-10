@@ -5,6 +5,7 @@ namespace App\Livewire\Students;
 use App\Models\Course;
 use App\Models\Enrollment;
 use App\Models\Student;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -45,6 +46,13 @@ class Index extends Component
 
     public ?int $course_id = null;
 
+    /**
+     * Offered next to the course, but the student form still creates nothing
+     * financial: the pack travels to the enrollment form through the prompt
+     * below so the center confirms the price there.
+     */
+    public int $duration_months = 1;
+
     public string $enrollment_status = 'نشط';
 
     public string $financial_status = 'غير مؤدي';
@@ -57,6 +65,7 @@ class Index extends Component
             'city' => ['nullable', 'string', 'max:255'],
             'guardian_phone' => ['nullable', 'string', 'max:30'],
             'course_id' => ['nullable', 'exists:courses,id'],
+            'duration_months' => ['required', 'integer', Rule::in(Enrollment::DURATIONS)],
             'enrollment_status' => ['required', 'in:نشط,متوقف'],
             'financial_status' => ['required', 'in:مؤدي,جزئي,غير مؤدي'],
         ];
@@ -70,6 +79,7 @@ class Index extends Component
             'city' => __('المدينة'),
             'guardian_phone' => __('هاتف ولي الأمر'),
             'course_id' => __('الدورة'),
+            'duration_months' => __('مدة الاشتراك'),
             'enrollment_status' => __('حالة التسجيل'),
             'financial_status' => __('الحالة المالية'),
         ];
@@ -134,8 +144,8 @@ class Index extends Component
     protected function resetForm(): void
     {
         $this->reset([
-            'name', 'phone', 'city',
-            'guardian_phone', 'course_id', 'enrollment_status', 'financial_status',
+            'name', 'phone', 'city', 'guardian_phone', 'course_id',
+            'duration_months', 'enrollment_status', 'financial_status',
         ]);
         $this->enrollment_status = 'نشط';
         $this->financial_status = 'غير مؤدي';
@@ -145,6 +155,10 @@ class Index extends Component
     {
         $data = $this->validate();
 
+        // The pack belongs to the enrollment, not to the student row.
+        $duration = (int) $data['duration_months'];
+        unset($data['duration_months']);
+
         if ($this->editingId) {
             $student = Student::findOrFail($this->editingId);
             $student->update($data);
@@ -152,7 +166,12 @@ class Index extends Component
         } else {
             $data['registered_at'] = now()->toDateString();
             $student = Student::create($data);
-            $this->enrollPrompt = ['id' => $student->id, 'name' => $student->name];
+            $this->enrollPrompt = [
+                'id' => $student->id,
+                'name' => $student->name,
+                'course' => $data['course_id'] ?: null,
+                'duration' => $duration,
+            ];
             $this->dispatch('toast', message: __('تمت إضافة الطالب بنجاح'));
         }
 
@@ -193,7 +212,7 @@ class Index extends Component
             ->enrollmentStatus($this->status)
             ->financialStatus($this->financial)
             ->when($this->course, fn ($q) => $q->where('course_id', $this->course))
-            ->with(['course', 'group'])
+            ->with(['course', 'group', 'currentEnrollment'])
             ->latest('registered_at')
             ->paginate(10);
 
@@ -210,6 +229,7 @@ class Index extends Component
             'students' => $students,
             'stats' => $stats,
             'courses' => $courses,
+            'durations' => Enrollment::DURATIONS,
         ])->extends('layouts.app')->section('content')->title(__('الطلاب'));
     }
 }

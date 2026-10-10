@@ -17,8 +17,34 @@ class Course extends Model
         'level',
         'teacher_id',
         'price',
+        'price_3_months',
+        'price_6_months',
+        'price_12_months',
         'status',
     ];
+
+    /** Pack duration → the column holding its special price, when the center set one. */
+    public const PACK_PRICE_COLUMNS = [
+        3 => 'price_3_months',
+        6 => 'price_6_months',
+        12 => 'price_12_months',
+    ];
+
+    /**
+     * What this course costs for a subscription of $months. A center that did
+     * not set a pack price is simply billed the monthly price × months, which
+     * is also what every course did before packs existed.
+     */
+    public function priceFor(int $months): int
+    {
+        $column = self::PACK_PRICE_COLUMNS[$months] ?? null;
+
+        if ($column !== null && $this->{$column} !== null) {
+            return (int) $this->{$column};
+        }
+
+        return (int) $this->price * max(1, $months);
+    }
 
     public function teacher()
     {

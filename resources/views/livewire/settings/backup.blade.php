@@ -131,6 +131,9 @@
                 <div class="flex items-center justify-between px-4 py-3 bg-ink-50">
                     <p class="text-sm font-semibold text-ink-800">
                         {{ __('تم استيراد :count طالباً', ['count' => $imported]) }}
+                        @if ($enrolled > 0)
+                            · <span class="text-brand-700">{{ __('و :count تسجيلاً باشتراك', ['count' => $enrolled]) }}</span>
+                        @endif
                         @if (count($failures))
                             · <span class="text-red-600">{{ __(':count صفاً لم يُستورد', ['count' => count($failures)]) }}</span>
                         @endif

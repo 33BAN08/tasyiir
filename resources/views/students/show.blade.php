@@ -86,6 +86,18 @@
             <div><p class="text-xs text-ink-400 mb-1">{{ __('هاتف ولي الأمر') }}</p><p class="ltr-nums text-sm font-semibold text-ink-800">{{ $student->guardian_phone ?? '—' }}</p></div>
             <div><p class="text-xs text-ink-400 mb-1">{{ __('الدورة الحالية') }}</p><p class="text-sm font-semibold text-ink-800">{{ $student->course?->name ?? '—' }}</p></div>
             <div><p class="text-xs text-ink-400 mb-1">{{ __('المجموعة') }}</p><p class="text-sm font-semibold text-ink-800">{{ $student->group?->name ?? '—' }}</p></div>
+            <div>
+                <p class="text-xs text-ink-400 mb-1">{{ __('مدة الاشتراك') }}</p>
+                @if ($enrollment)
+                    <x-status-badge :label="$enrollment->duration_label" :tone="$enrollment->months > 1 ? 'violet' : 'neutral'" />
+                @else
+                    <p class="text-sm font-semibold text-ink-800">—</p>
+                @endif
+            </div>
+            <div>
+                <p class="text-xs text-ink-400 mb-1">{{ __('صالح حتى') }}</p>
+                <p class="ltr-nums text-sm font-semibold {{ $enrollment?->is_overdue ? 'text-red-600' : 'text-ink-800' }}">{{ $enrollment?->due_date?->format('Y-m-d') ?? '—' }}</p>
+            </div>
         </div>
 
         <!-- التسجيلات (real — latest enrollment) -->
@@ -97,6 +109,8 @@
                             <tr>
                                 <th class="table-head-cell">{{ __('الدورة') }}</th>
                                 <th class="table-head-cell">{{ __('المجموعة') }}</th>
+                                <th class="table-head-cell">{{ __('المدة') }}</th>
+                                <th class="table-head-cell">{{ __('صالح حتى') }}</th>
                                 <th class="table-head-cell">{{ __('السعر') }}</th>
                                 <th class="table-head-cell">{{ __('الخصم') }}</th>
                                 <th class="table-head-cell">{{ __('المتبقي') }}</th>
@@ -107,6 +121,8 @@
                             <tr>
                                 <td class="table-cell">{{ $enrollment->course?->name ?? '—' }}</td>
                                 <td class="table-cell">{{ $enrollment->group?->name ?? '—' }}</td>
+                                <td class="table-cell"><x-status-badge :label="$enrollment->duration_label" :tone="$enrollment->months > 1 ? 'violet' : 'neutral'" /></td>
+                                <td class="table-cell ltr-nums">{{ $enrollment->due_date?->format('Y-m-d') ?? '—' }}</td>
                                 <td class="table-cell ltr-nums">{{ mad($enrollment->price) }}</td>
                                 <td class="table-cell ltr-nums">{{ mad($enrollment->discount) }}</td>
                                 <td class="table-cell ltr-nums">{{ mad($enrollment->remaining) }}</td>

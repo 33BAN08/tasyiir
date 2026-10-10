@@ -3,6 +3,7 @@
 namespace App\Imports;
 
 use App\Models\Course;
+use App\Models\Enrollment;
 use App\Models\Group;
 use App\Models\Student;
 use Illuminate\Support\Carbon;
@@ -27,18 +28,35 @@ use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
  * others fail. Created rows get tenant_id from the signed-in user, and the
  * course/group lookups run under TenantScope, so another center's names can
  * never match.
+ *
+ * The optional "مدة الاشتراك" column is the one thing that creates more than a
+ * student: filling it in (1, 3, 6 or 12, alongside a course) also creates the
+ * matching unpaid enrollment, because a pack length is meaningless without one.
+ * Leaving it empty behaves exactly as the importer always has.
  */
 class StudentsImport implements SkipsEmptyRows, SkipsOnError, SkipsOnFailure, ToModel, WithHeadingRow
 {
     use Importable, RemembersRowNumber, SkipsErrors;
 
     /** Template columns, in order. Kept in one place so the template and the import can't drift. */
-    public const HEADINGS = ['الاسم', 'الجنس', 'الهاتف', 'البريد الإلكتروني', 'المدينة', 'هاتف ولي الأمر', 'الدورة', 'المجموعة', 'تاريخ التسجيل'];
+    public const HEADINGS = ['الاسم', 'الجنس', 'الهاتف', 'البريد الإلكتروني', 'المدينة', 'هاتف ولي الأمر', 'الدورة', 'المجموعة', 'تاريخ التسجيل', 'مدة الاشتراك'];
 
     public int $imported = 0;
 
+    /** Enrollments created because a row filled in the optional duration column. */
+    public int $enrolled = 0;
+
     /** @var list<array{row: int, message: string}> */
     public array $failures = [];
+
+    /**
+     * Rows that asked for a pack, held back until the students have been
+     * saved and have ids. Leaving the duration column empty keeps the original
+     * behaviour exactly: a student is imported and nothing is billed.
+     *
+     * @var list<array{student: Student, course: Course, months: int, date: string}>
+     */
+    protected array $pendingEnrollments = [];
 
     public function __construct()
     {
@@ -116,10 +134,28 @@ class StudentsImport implements SkipsEmptyRows, SkipsOnError, SkipsOnFailure, To
             return null;
         }
 
+        // Optional pack. Empty is the default (1 = monthly) and, as before,
+        // imports the student without creating anything financial.
+        $durationRaw = $get('مدة الاشتراك');
+        $months = 1;
+        if ($durationRaw !== '') {
+            $months = (int) filter_var($durationRaw, FILTER_SANITIZE_NUMBER_INT);
+            if (! in_array($months, Enrollment::DURATIONS, true)) {
+                $this->fail($rowNumber, __('مدة الاشتراك ":value" غير صالحة — استعمل 1 أو 3 أو 6 أو 12.', ['value' => $durationRaw]));
+
+                return null;
+            }
+            if (! $course) {
+                $this->fail($rowNumber, __('مدة الاشتراك تتطلب تحديد الدورة في نفس السطر.'));
+
+                return null;
+            }
+        }
+
         $this->imported++;
 
         // tenant_id is stamped explicitly, like every other creation path in the app.
-        return new Student([
+        $student = new Student([
             'tenant_id' => auth()->user()->tenant_id,
             ...$data,
             'course_id' => $course?->id,
@@ -128,6 +164,56 @@ class StudentsImport implements SkipsEmptyRows, SkipsOnError, SkipsOnFailure, To
             'enrollment_status' => 'نشط',
             'financial_status' => 'غير مؤدي',
         ]);
+
+        if ($durationRaw !== '' && $course) {
+            $this->pendingEnrollments[] = [
+                'student' => $student,
+                'course' => $course,
+                'group' => $group,
+                'months' => $months,
+                'date' => $registeredAt ?? now()->toDateString(),
+            ];
+        }
+
+        return $student;
+    }
+
+    /**
+     * Creates the enrollments the duration column asked for. Called by the
+     * importer once the sheet has been read, because a student only has an id
+     * after the package has saved it. Each one starts unpaid for the pack
+     * price, exactly like one created by hand in التسجيلات.
+     */
+    public function createPendingEnrollments(): int
+    {
+        foreach ($this->pendingEnrollments as $pending) {
+            $student = $pending['student'];
+            if (! $student->exists) {
+                continue;
+            }
+
+            $price = $pending['course']->priceFor($pending['months']);
+
+            Enrollment::create([
+                'tenant_id' => $student->tenant_id,
+                'student_id' => $student->id,
+                'course_id' => $pending['course']->id,
+                'group_id' => $pending['group']?->id,
+                'date' => $pending['date'],
+                'due_date' => Carbon::parse($pending['date'])->addMonthsNoOverflow($pending['months'])->toDateString(),
+                'duration_months' => $pending['months'],
+                'price' => $price,
+                'discount' => 0,
+                'remaining' => $price,
+                'status' => 'غير مؤدي',
+            ]);
+
+            $this->enrolled++;
+        }
+
+        $this->pendingEnrollments = [];
+
+        return $this->enrolled;
     }
 
     /** Validation failures raised by the package itself (none configured, kept for completeness). */

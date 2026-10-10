@@ -26,6 +26,9 @@ class Backup extends Component
 
     public ?int $imported = null;
 
+    /** Enrollments created by rows that filled the optional duration column. */
+    public int $enrolled = 0;
+
     /** @var list<array{row: int, message: string}> */
     public array $failures = [];
 
@@ -165,8 +168,12 @@ class Backup extends Component
 
         $import = new StudentsImport;
         Excel::import($import, $this->file->getRealPath(), null, \Maatwebsite\Excel\Excel::XLSX);
+        // Rows that filled the duration column get their enrollment now that
+        // the students have been saved and have ids.
+        $import->createPendingEnrollments();
 
         $this->imported = $import->imported;
+        $this->enrolled = $import->enrolled;
         $this->failures = $import->failures;
         $this->reset('file');
 
@@ -175,7 +182,7 @@ class Backup extends Component
 
     public function clearResult(): void
     {
-        $this->reset(['imported', 'failures', 'file']);
+        $this->reset(['imported', 'enrolled', 'failures', 'file']);
     }
 
     public function render()

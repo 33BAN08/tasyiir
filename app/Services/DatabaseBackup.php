@@ -225,6 +225,15 @@ class DatabaseBackup
             // Caches are rebuilt on the next request anyway.
         }
 
+        // A backup taken before an update carries that version's schema. The
+        // code running now is newer, so bring the restored database up to it —
+        // otherwise the center comes back to missing-column errors.
+        try {
+            Artisan::call('migrate', ['--force' => true]);
+        } catch (\Throwable) {
+            // Reported by the health banner; the data itself is already in place.
+        }
+
         return true;
     }
 }

@@ -70,6 +70,18 @@
                 <p class="text-xs text-ink-400 mb-0.5">{{ __('تاريخ الاستحقاق التالي') }}</p>
                 <p class="ltr-nums font-semibold text-ink-900">{{ $enrollment?->due_date?->format('Y-m-d') ?? '—' }}</p>
             </div>
+            @if ($enrollment)
+                <div>
+                    <p class="text-xs text-ink-400 mb-0.5">{{ __('مدة الاشتراك') }}</p>
+                    <p class="font-semibold text-ink-900">{{ __($enrollment->duration_label) }}</p>
+                </div>
+                <div>
+                    <p class="text-xs text-ink-400 mb-0.5">{{ __('الفترة المغطاة') }}</p>
+                    <p class="ltr-nums font-semibold text-ink-900">
+                        {{ $enrollment->period_start?->format('Y-m-d') ?? '—' }} → {{ $enrollment->period_end?->format('Y-m-d') ?? '—' }}
+                    </p>
+                </div>
+            @endif
         </div>
 
         <div class="py-5 border-b border-ink-100">
@@ -82,7 +94,7 @@
         @if ($enrollment)
             <table class="w-full text-sm mt-5">
                 <tbody class="divide-y divide-ink-100">
-                    <tr><td class="py-2 text-ink-500">{{ __('سعر الدورة (شهرياً)') }}</td><td class="py-2 text-end ltr-nums font-semibold">{{ mad($enrollment->price) }}</td></tr>
+                    <tr><td class="py-2 text-ink-500">{{ $enrollment->months > 1 ? __('سعر الاشتراك') : __('سعر الدورة (شهرياً)') }}</td><td class="py-2 text-end ltr-nums font-semibold">{{ mad($enrollment->price) }}</td></tr>
                     @if ($enrollment->discount > 0)
                         <tr><td class="py-2 text-ink-500">{{ __('الخصم') }}</td><td class="py-2 text-end ltr-nums font-semibold text-emerald-700">- {{ mad($enrollment->discount) }}</td></tr>
                     @endif

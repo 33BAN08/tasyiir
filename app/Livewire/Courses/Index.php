@@ -41,6 +41,14 @@ class Index extends Component
 
     public $price = 0;
 
+    // Optional pack prices. Empty means "no special rate": Course::priceFor()
+    // then charges the monthly price × the number of months.
+    public $price_3_months = null;
+
+    public $price_6_months = null;
+
+    public $price_12_months = null;
+
     public string $status = 'نشط';
 
     protected function rules(): array
@@ -50,6 +58,9 @@ class Index extends Component
             'level' => ['nullable', 'string', 'max:255'],
             'teacher_id' => ['nullable', Rule::exists('teachers', 'id')->where('tenant_id', auth()->user()->tenant_id)->whereNull('deleted_at')],
             'price' => ['required', 'integer', 'min:0'],
+            'price_3_months' => ['nullable', 'integer', 'min:0'],
+            'price_6_months' => ['nullable', 'integer', 'min:0'],
+            'price_12_months' => ['nullable', 'integer', 'min:0'],
             'status' => ['required', 'in:'.implode(',', self::STATUSES)],
         ];
     }
@@ -61,6 +72,9 @@ class Index extends Component
             'level' => __('المستوى'),
             'teacher_id' => __('الأستاذ'),
             'price' => __('السعر'),
+            'price_3_months' => __('سعر 3 أشهر'),
+            'price_6_months' => __('سعر 6 أشهر'),
+            'price_12_months' => __('سعر سنة'),
             'status' => __('الحالة'),
         ];
     }
@@ -95,6 +109,9 @@ class Index extends Component
         $this->level = (string) $course->level;
         $this->teacher_id = $course->teacher_id;
         $this->price = (int) $course->price;
+        $this->price_3_months = $course->price_3_months;
+        $this->price_6_months = $course->price_6_months;
+        $this->price_12_months = $course->price_12_months;
         $this->status = $course->status;
         $this->showModal = true;
     }
@@ -108,13 +125,26 @@ class Index extends Component
 
     protected function resetForm(): void
     {
-        $this->reset(['name', 'level', 'teacher_id', 'price', 'status']);
+        $this->reset(['name', 'level', 'teacher_id', 'price', 'price_3_months', 'price_6_months', 'price_12_months', 'status']);
         $this->status = 'نشط';
     }
 
     public function save(): void
     {
+        // An empty pack price means "use the default", which is null in the
+        // database — not 0, which would mean "this pack is free". The blank
+        // input arrives as '', and `nullable` does not cover that.
+        foreach (array_values(Course::PACK_PRICE_COLUMNS) as $column) {
+            if ($this->{$column} === '' || $this->{$column} === null) {
+                $this->{$column} = null;
+            }
+        }
+
         $data = $this->validate();
+
+        foreach (array_values(Course::PACK_PRICE_COLUMNS) as $column) {
+            $data[$column] = $data[$column] === null ? null : (int) $data[$column];
+        }
 
         if ($this->editingId) {
             Course::findOrFail($this->editingId)->update($data);

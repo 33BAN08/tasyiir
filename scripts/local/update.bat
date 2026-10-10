@@ -23,6 +23,14 @@ if not exist "%TARGET%\app\artisan" (
 
 set "PHP=%TARGET%\php\php.exe"
 
+rem Compiled caches go first, before any artisan command runs, and they are
+rem deleted as files rather than with optimize:clear: bootstrap\cache\packages.php
+rem lists the service providers discovered when the installed version was set up,
+rem so once the vendor folder differs, every artisan command - optimize:clear
+rem included - dies on a missing provider class before it can clear anything.
+rem Doing it here also means a half-finished update can simply be re-run.
+if exist "%TARGET%\app\bootstrap\cache\*.php" del /q "%TARGET%\app\bootstrap\cache\*.php"
+
 echo [1/5] Arret du serveur
 call "%TARGET%\stop.bat"
 
@@ -36,10 +44,13 @@ rem /E, never /MIR: mirroring deletes everything in the destination that is not
 rem in the package, which wipes the client's backups and uploaded files. The
 rem excluded folders are given as full paths because robocopy does not match
 rem relative ones.
+rem database\ is NOT excluded: new migrations live there and must reach the
+rem client, otherwise an update ships code that its schema cannot serve. Only
+rem the client's own database file is protected, by name.
 robocopy "%~dp0app" "%TARGET%\app" /E /NFL /NDL /NJH /NJS /NP ^
   /XD "%TARGET%\app\storage\app" "%TARGET%\app\storage\backups" "%TARGET%\app\storage\logs" ^
       "%TARGET%\app\storage\framework\sessions" "%TARGET%\app\storage\framework\cache" ^
-      "%TARGET%\app\storage\framework\views" "%TARGET%\app\database" ^
+      "%TARGET%\app\storage\framework\views" ^
   /XF ".env" "licence.key" "database.sqlite"
 if errorlevel 8 (
     echo [X] La copie des fichiers a echoue.
@@ -48,6 +59,10 @@ if errorlevel 8 (
 )
 
 echo [4/5] Migrations
+rem Again, because step 3 has just replaced the application files and the
+rem backup in step 2 will have rebuilt the caches from the old version.
+if exist "%TARGET%\app\bootstrap\cache\*.php" del /q "%TARGET%\app\bootstrap\cache\*.php"
+
 pushd "%TARGET%\app"
 "%PHP%" artisan migrate --force --no-ansi
 if errorlevel 1 (

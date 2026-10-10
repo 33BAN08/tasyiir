@@ -13,6 +13,9 @@ class Enrollment extends Model
 
     public const STATUSES = ['مكتمل', 'جزئي', 'غير مؤدي'];
 
+    /** Subscription packs a center can sell. 1 = the original monthly billing. */
+    public const DURATIONS = [1, 3, 6, 12];
+
     /** Enrollment payment status → Student financial_status. */
     public const FINANCIAL_STATUS_MAP = [
         'مكتمل' => 'مؤدي',
@@ -27,6 +30,7 @@ class Enrollment extends Model
         'group_id',
         'date',
         'due_date',
+        'duration_months',
         'price',
         'discount',
         'remaining',
@@ -38,7 +42,44 @@ class Enrollment extends Model
         return [
             'date' => 'date',
             'due_date' => 'date',
+            'duration_months' => 'integer',
         ];
+    }
+
+    /** Months covered by one period of this enrollment; never 0. */
+    public function getMonthsAttribute(): int
+    {
+        $months = (int) ($this->duration_months ?: 1);
+
+        return in_array($months, self::DURATIONS, true) ? $months : 1;
+    }
+
+    /** Arabic label for a pack length, translated at display time like every other stored value. */
+    public static function durationLabel(int $months): string
+    {
+        return match ($months) {
+            3 => 'ثلاثة أشهر',
+            6 => 'ستة أشهر',
+            12 => 'سنوي',
+            default => 'شهري',
+        };
+    }
+
+    public function getDurationLabelAttribute(): string
+    {
+        return self::durationLabel($this->months);
+    }
+
+    /** End of the period currently being billed — the due date itself. */
+    public function getPeriodEndAttribute(): ?\Illuminate\Support\Carbon
+    {
+        return $this->due_date?->copy();
+    }
+
+    /** Start of that period: one pack length before it ends. */
+    public function getPeriodStartAttribute(): ?\Illuminate\Support\Carbon
+    {
+        return $this->due_date?->copy()->subMonthsNoOverflow($this->months);
     }
 
     public function getIsOverdueAttribute(): bool
@@ -56,10 +97,18 @@ class Enrollment extends Model
     }
 
     /**
-     * Monthly rollover: a fully paid enrollment whose due date has passed owes
-     * the next month, so it becomes unpaid again (full net amount outstanding)
-     * and the student's financial badge follows. Idempotent and cheap, so it is
-     * run lazily on page load as well as by the daily scheduled command.
+     * Period rollover: a fully paid enrollment whose due date has passed owes
+     * the next period, so it becomes unpaid again (full net amount outstanding)
+     * and the student's financial badge follows. With packs the outstanding
+     * amount is the pack price, because `price` holds what one period costs —
+     * a 6-month pack owes six months' worth, not one.
+     *
+     * The due date deliberately stays put until the new period is settled: that
+     * is what makes the enrollment show as overdue (see getIsOverdueAttribute)
+     * and feeds the "متأخرون عن الأداء" counters. Settling it in full is what
+     * moves the deadline forward by one pack length — see applyPayment().
+     *
+     * Idempotent and cheap, so it is run lazily on page load.
      */
     public static function rolloverDue(): int
     {
@@ -131,10 +180,11 @@ class Enrollment extends Model
         $paid = $this->paid + max(0, $amount);
         $settled = self::settle((int) $this->price, (int) $this->discount, $paid);
 
-        // Settling a due/overdue period in full moves the deadline to next month —
-        // otherwise the monthly rollover would flip it straight back to unpaid.
+        // Settling a due/overdue period in full moves the deadline forward by one
+        // pack length (a month for monthly enrollments) — otherwise the rollover
+        // would flip it straight back to unpaid.
         if ($settled['status'] === 'مكتمل' && $this->status !== 'مكتمل' && $this->due_date && $this->due_date->lte(today())) {
-            $settled['due_date'] = $this->due_date->copy()->addMonth();
+            $settled['due_date'] = $this->due_date->copy()->addMonthsNoOverflow($this->months);
         }
 
         $this->forceFill($settled)->save();

@@ -26,6 +26,7 @@ class EnrollmentsSheet extends ModelSheet
             'المجموعة' => fn ($e) => $e->group?->name,
             'تاريخ التسجيل' => 'date',
             'تاريخ الاستحقاق' => 'due_date',
+            'مدة الاشتراك (أشهر)' => 'duration_months',
             'السعر' => 'price',
             'الخصم' => 'discount',
             'المتبقي' => 'remaining',

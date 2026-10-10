@@ -121,9 +121,25 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-ink-700 mb-1.5">{{ __('السعر (MAD / شهر)') }}</label>
-                            <input type="number" min="0" wire:model="price" class="input ps-3 ltr-nums" />
+                            <input type="number" min="0" wire:model.live.debounce.400ms="price" class="input ps-3 ltr-nums" />
                             @error('price') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
                         </div>
+                    </div>
+
+                    <div>
+                        <p class="text-sm font-medium text-ink-700 mb-1.5">{{ __('أسعار الاشتراكات (اختياري)') }}</p>
+                        <div class="grid grid-cols-3 gap-3">
+                            @foreach ([3 => __('سعر 3 أشهر'), 6 => __('سعر 6 أشهر'), 12 => __('سعر سنة')] as $months => $label)
+                                @php $field = \App\Models\Course::PACK_PRICE_COLUMNS[$months]; @endphp
+                                <div>
+                                    <label class="block text-xs text-ink-500 mb-1">{{ $label }}</label>
+                                    <input type="number" min="0" wire:model="{{ $field }}" class="input ps-3 ltr-nums"
+                                           placeholder="{{ max(0, (int) $price) * $months }}" />
+                                    @error($field) <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
+                                </div>
+                            @endforeach
+                        </div>
+                        <p class="text-[11px] text-ink-400 mt-1">{{ __('اتركه فارغاً لاحتساب السعر الشهري × عدد الأشهر.') }}</p>
                     </div>
                     <div class="grid grid-cols-2 gap-3">
                         <div>

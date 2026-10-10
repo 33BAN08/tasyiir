@@ -49,6 +49,9 @@ class Index extends Component
 
     public string $due_date = '';
 
+    /** Subscription pack: 1 = the monthly billing every enrollment used before. */
+    public int $duration_months = 1;
+
     public $price = 0;
 
     public $discount = 0;
@@ -82,6 +85,7 @@ class Index extends Component
                     $fail(__('يجب أن يكون تاريخ الاستحقاق بعد تاريخ التسجيل أو مساوياً له.'));
                 }
             }],
+            'duration_months' => ['required', 'integer', Rule::in(Enrollment::DURATIONS)],
             'price' => ['required', 'integer', 'min:0'],
             'discount' => ['required', 'integer', 'min:0', 'lte:price'],
             'paid' => ['required', 'integer', 'min:0'],
@@ -96,6 +100,7 @@ class Index extends Component
             'group_id' => __('المجموعة'),
             'date' => __('تاريخ التسجيل'),
             'due_date' => __('تاريخ الاستحقاق'),
+            'duration_months' => __('مدة الاشتراك'),
             'price' => __('السعر'),
             'discount' => __('الخصم'),
             'paid' => __('المبلغ المؤدى'),
@@ -109,7 +114,50 @@ class Index extends Component
             $this->openCreate();
             $this->pinnedStudentId = $student->id;
             $this->student_id = $student->id;
+
+            // Carried over from the student form, which offers the course and the
+            // pack but deliberately creates nothing: the enrollment is confirmed
+            // here, pre-filled with the price and the end of the period.
+            $duration = request()->integer('duration');
+            if (in_array($duration, Enrollment::DURATIONS, true)) {
+                $this->duration_months = $duration;
+            }
+
+            $courseId = request()->integer('course');
+            if ($courseId && Course::whereKey($courseId)->exists()) {
+                $this->course_id = $courseId;
+            }
+
+            $this->applyCoursePricing();
         }
+    }
+
+    /**
+     * Price and end of period follow the course and the chosen pack. Both stay
+     * editable afterwards — a center may agree a one-off price — so this only
+     * ever fills the fields while creating, never while editing an existing
+     * enrollment whose figures are already agreed.
+     */
+    protected function applyCoursePricing(): void
+    {
+        if ($this->editingId) {
+            return;
+        }
+
+        if ($this->course_id && ($course = Course::find($this->course_id))) {
+            $this->price = $course->priceFor($this->duration_months);
+        }
+
+        if ($this->date) {
+            $this->due_date = Carbon::parse($this->date)->addMonthsNoOverflow($this->duration_months)->toDateString();
+        }
+    }
+
+    public function updatedDurationMonths(): void
+    {
+        // A value outside DURATIONS can only come from a tampered select, and
+        // it is rejected by the rules rather than silently turned into monthly.
+        $this->applyCoursePricing();
     }
 
     public function unpinStudent(): void
@@ -118,11 +166,11 @@ class Index extends Component
         $this->student_id = null;
     }
 
-    /** Default the due date to one month after the enrollment date while creating. */
+    /** Default the due date to one pack length after the enrollment date while creating. */
     public function updatedDate($value): void
     {
         if (! $this->editingId && $value) {
-            $this->due_date = Carbon::parse($value)->addMonth()->toDateString();
+            $this->due_date = Carbon::parse($value)->addMonthsNoOverflow($this->duration_months)->toDateString();
         }
     }
 
@@ -156,7 +204,7 @@ class Index extends Component
             }
             $this->studentSearch = '';
             if ($course) {
-                $this->price = (int) $course->price;
+                $this->price = $course->priceFor($this->duration_months);
             }
         }
     }
@@ -166,7 +214,7 @@ class Index extends Component
         $this->resetForm();
         $this->editingId = null;
         $this->date = now()->toDateString();
-        $this->due_date = now()->addMonth()->toDateString();
+        $this->due_date = now()->addMonthsNoOverflow($this->duration_months)->toDateString();
         $this->showModal = true;
     }
 
@@ -179,6 +227,7 @@ class Index extends Component
         $this->group_id = $enrollment->group_id;
         $this->date = $enrollment->date->toDateString();
         $this->due_date = $enrollment->due_date?->toDateString() ?? '';
+        $this->duration_months = $enrollment->months;
         $this->price = (int) $enrollment->price;
         $this->discount = (int) $enrollment->discount;
         $this->paid = $enrollment->paid;
@@ -194,7 +243,7 @@ class Index extends Component
 
     protected function resetForm(): void
     {
-        $this->reset(['studentSearch', 'pinnedStudentId', 'student_id', 'course_id', 'group_id', 'date', 'due_date', 'price', 'discount', 'paid']);
+        $this->reset(['studentSearch', 'pinnedStudentId', 'student_id', 'course_id', 'group_id', 'date', 'due_date', 'duration_months', 'price', 'discount', 'paid']);
     }
 
     public function save(): void
@@ -207,6 +256,7 @@ class Index extends Component
             'group_id' => $data['group_id'] ?: null,
             'date' => $data['date'],
             'due_date' => $data['due_date'] ?: null,
+            'duration_months' => (int) $data['duration_months'],
             'price' => (int) $data['price'],
             'discount' => (int) $data['discount'],
         ] + Enrollment::settle((int) $data['price'], (int) $data['discount'], (int) $data['paid']);
@@ -215,10 +265,10 @@ class Index extends Component
             $enrollment = Enrollment::findOrFail($this->editingId);
 
             // Settling a period that is due (or overdue) in full moves the
-            // deadline to the next month.
+            // deadline forward by one pack length.
             $dueDate = $attributes['due_date'] ? Carbon::parse($attributes['due_date']) : null;
             if ($attributes['status'] === 'مكتمل' && $enrollment->status !== 'مكتمل' && $dueDate && $dueDate->lte(today())) {
-                $attributes['due_date'] = $dueDate->addMonth()->toDateString();
+                $attributes['due_date'] = $dueDate->addMonthsNoOverflow($attributes['duration_months'])->toDateString();
             }
 
             $enrollment->update($attributes);
@@ -323,6 +373,7 @@ class Index extends Component
             'pinnedStudent' => $pinnedStudent,
             'preview' => $preview,
             'statuses' => Enrollment::STATUSES,
+            'durations' => Enrollment::DURATIONS,
         ])->extends('layouts.app')->section('content')->title(__('التسجيلات'));
     }
 }

@@ -49,6 +49,7 @@
                         <th class="table-head-cell">{{ __('الطالب') }}</th>
                         <th class="table-head-cell">{{ __('الدورة') }}</th>
                         <th class="table-head-cell">{{ __('المجموعة') }}</th>
+                        <th class="table-head-cell">{{ __('المدة') }}</th>
                         <th class="table-head-cell">{{ __('تاريخ التسجيل') }}</th>
                         <th class="table-head-cell">{{ __('الاستحقاق') }}</th>
                         <th class="table-head-cell">{{ __('السعر') }}</th>
@@ -73,6 +74,9 @@
                             </td>
                             <td class="table-cell">{{ $r->course?->name ?? '—' }}</td>
                             <td class="table-cell">{{ $r->group?->name ?? '—' }}</td>
+                            <td class="table-cell">
+                                <x-status-badge :label="$r->duration_label" :tone="$r->months > 1 ? 'violet' : 'neutral'" />
+                            </td>
                             <td class="table-cell ltr-nums">{{ $r->date->format('Y-m-d') }}</td>
                             <td class="table-cell">
                                 @if ($r->due_date)
@@ -97,7 +101,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="10">
+                            <td colspan="11">
                                 <x-empty-state icon="clipboard-list" title="{{ __('لا توجد تسجيلات') }}" description="{{ __('لم يتم العثور على أي تسجيل مطابق لبحثك أو الفلاتر المحددة.') }}" />
                             </td>
                         </tr>
@@ -114,6 +118,7 @@
                         <div class="flex-1 min-w-0">
                             <p class="font-semibold text-ink-800 truncate">{{ $r->student?->name ?? __('طالب محذوف') }}</p>
                             <p class="text-xs text-ink-400 truncate">{{ $r->course?->name ?? '—' }} · {{ $r->group?->name ?? '—' }}</p>
+                            <p class="text-xs text-ink-400 mt-0.5">{{ __($r->duration_label) }}</p>
                         </div>
                         <x-status-badge :label="$r->status" :tone="$statusTone[$r->status] ?? 'neutral'" />
                     </div>
@@ -175,6 +180,17 @@
                             </select>
                             @error('group_id') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
                         </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-ink-700 mb-1.5">{{ __('مدة الاشتراك') }}</label>
+                        <select class="select" wire:model.live="duration_months">
+                            @foreach ($durations as $d)
+                                <option value="{{ $d }}">{{ __(\App\Models\Enrollment::durationLabel($d)) }}</option>
+                            @endforeach
+                        </select>
+                        <p class="text-[11px] text-ink-400 mt-1">{{ __('يحدد السعر وتاريخ نهاية الفترة. يمكن تعديل السعر بعد ذلك.') }}</p>
+                        @error('duration_months') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
                     </div>
 
                     @if ($selectedCourse)

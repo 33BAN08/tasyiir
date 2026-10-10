@@ -50,7 +50,11 @@
             </span>
             <p class="flex-1 text-sm text-ink-700">{{ __('تمت إضافة') }} <span class="font-semibold">{{ $enrollPrompt['name'] }}</span>{{ __('. هل تريد تسجيله في دورة الآن؟') }}</p>
             <div class="flex items-center gap-2">
-                <a href="{{ route('enrollments.index', ['student' => $enrollPrompt['id']]) }}" class="btn-primary">
+                <a href="{{ route('enrollments.index', array_filter([
+                        'student' => $enrollPrompt['id'],
+                        'course' => $enrollPrompt['course'] ?? null,
+                        'duration' => ($enrollPrompt['duration'] ?? 1) > 1 ? $enrollPrompt['duration'] : null,
+                   ])) }}" class="btn-primary">
                     <x-icon name="clipboard-list" class="w-4 h-4" /> {{ __('تسجيل في دورة') }}
                 </a>
                 <button type="button" class="btn-ghost" wire:click="dismissEnrollPrompt">{{ __('لاحقاً') }}</button>
@@ -72,6 +76,7 @@
                         <th class="table-head-cell">{{ __('الهاتف') }}</th>
                         <th class="table-head-cell">{{ __('الدورة') }}</th>
                         <th class="table-head-cell">{{ __('المجموعة') }}</th>
+                        <th class="table-head-cell">{{ __('مدة الاشتراك') }}</th>
                         <th class="table-head-cell">{{ __('تاريخ التسجيل') }}</th>
                         <th class="table-head-cell">{{ __('حالة التسجيل') }}</th>
                         <th class="table-head-cell">{{ __('الحالة المالية') }}</th>
@@ -89,7 +94,16 @@
                             </td>
                             <td class="table-cell ltr-nums">{{ $s->phone }}</td>
                             <td class="table-cell">{{ $s->course?->name ?? '—' }}</td>
-                            <td class="table-cell">{{ $s->group?->name ?? '—' }}</td>
+                            <td class="table-cell">
+                                @if ($s->currentEnrollment)
+                                    <x-status-badge :label="$s->currentEnrollment->duration_label" :tone="$s->currentEnrollment->months > 1 ? 'violet' : 'neutral'" />
+                                    @if ($s->currentEnrollment->due_date)
+                                        <span class="block text-[11px] text-ink-400 mt-0.5">{{ __('صالح حتى') }} <span class="ltr-nums">{{ $s->currentEnrollment->due_date->format('Y-m-d') }}</span></span>
+                                    @endif
+                                @else
+                                    —
+                                @endif
+                            </td>
                             <td class="table-cell ltr-nums">{{ $s->registered_at->format('Y-m-d') }}</td>
                             <td class="table-cell"><x-status-badge :label="$s->enrollment_status" :tone="$statusTone[$s->enrollment_status] ?? 'neutral'" /></td>
                             <td class="table-cell"><x-status-badge :label="$s->financial_status" :tone="$financeTone[$s->financial_status] ?? 'neutral'" /></td>
@@ -104,7 +118,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8">
+                            <td colspan="9">
                                 <x-empty-state icon="users" title="{{ __('لا يوجد طلاب') }}" description="{{ __('لم يتم العثور على أي طالب مطابق لبحثك أو الفلاتر المحددة.') }}" />
                             </td>
                         </tr>
@@ -196,7 +210,7 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-ink-700 mb-1.5">{{ __('الدورة') }}</label>
-                            <select class="select" wire:model="course_id">
+                            <select class="select" wire:model.live="course_id">
                                 <option value="">{{ __('بدون دورة') }}</option>
                                 @foreach ($courses as $c)
                                     <option value="{{ $c->id }}">{{ $c->name }}</option>
@@ -204,6 +218,19 @@
                             </select>
                         </div>
                     </div>
+
+                    @if ($course_id)
+                        <div>
+                            <label class="block text-sm font-medium text-ink-700 mb-1.5">{{ __('مدة الاشتراك') }}</label>
+                            <select class="select" wire:model="duration_months">
+                                @foreach ($durations as $d)
+                                    <option value="{{ $d }}">{{ __(\App\Models\Enrollment::durationLabel($d)) }}</option>
+                                @endforeach
+                            </select>
+                            <p class="text-[11px] text-ink-400 mt-1">{{ __('يُستعمل عند تأكيد التسجيل في الخطوة التالية.') }}</p>
+                            @error('duration_months') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
+                        </div>
+                    @endif
                     <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label class="block text-sm font-medium text-ink-700 mb-1.5">{{ __('حالة التسجيل') }}</label>
