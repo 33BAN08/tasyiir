@@ -15,7 +15,7 @@
                 title="{{ __('نسخ النص') }}"
                 aria-label="{{ __('نسخ النص') }}"
                 x-data="{ done: false }"
-                x-on:click="navigator.clipboard.writeText(@js($message)).then(() => { done = true; setTimeout(() => done = false, 1500) })">
+                x-on:click="window.copyText(@js($message)).then(ok => { done = ok; setTimeout(() => done = false, 1500) })">
             {{-- No x-cloak rule in this app's CSS, so the second icon starts hidden. --}}
             <x-icon name="copy" class="w-4 h-4" x-show="!done" />
             <x-icon name="check" class="w-4 h-4 text-emerald-600" style="display:none" x-show="done" />

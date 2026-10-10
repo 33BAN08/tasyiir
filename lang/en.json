@@ -760,5 +760,7 @@
     "معاينة": "Preview",
     "عند ترك النص كما هو افتراضياً، تتكيّف الصيغة تلقائياً مع جنس الطالب (ابنكم / ابنتكم).": "Keeping the default text makes the wording follow the student's gender automatically.",
     "غيابات اليوم غير المُبلَّغ عنها": "Today's absences not yet reported",
-    ":count حالة بانتظار إشعار ولي الأمر.": ":count case(s) waiting for a message to the parents."
+    ":count حالة بانتظار إشعار ولي الأمر.": ":count case(s) waiting for a message to the parents.",
+    "أضف رقم هاتف المركز ليظهر في الرسالة": "Add the center's phone number so it appears in the message",
+    "تعذّر النسخ — انسخ الرمز يدوياً": "Copy failed - copy the code by hand"
 }

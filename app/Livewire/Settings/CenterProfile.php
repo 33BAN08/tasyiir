@@ -59,16 +59,51 @@ class CenterProfile extends Component
         $this->address = (string) $tenant->setting('address');
         // Blank in the form means "keep the built-in text"; the owner is shown
         // the default so they can edit it rather than start from nothing.
-        $this->absence_message = (string) ($tenant->setting('absence_message') ?: AbsenceMessage::defaultTemplate('غائب'));
-        $this->late_message = (string) ($tenant->setting('late_message') ?: AbsenceMessage::defaultTemplate('متأخر'));
+        $this->absence_message = (string) ($tenant->setting('absence_message') ?: $this->defaultTemplate('غائب'));
+        $this->late_message = (string) ($tenant->setting('late_message') ?: $this->defaultTemplate('متأخر'));
+    }
+
+    public function hasPhone(): bool
+    {
+        return trim($this->phone) !== '';
+    }
+
+    /** The built-in text as it would really be sent with the phone currently entered. */
+    protected function defaultTemplate(string $state): string
+    {
+        return AbsenceMessage::defaultTemplate($state, null, $this->hasPhone());
+    }
+
+    /** True while the owner has not written their own wording. */
+    protected static function isDefault(string $value, string $state): bool
+    {
+        $value = trim($value);
+
+        return $value === ''
+            || $value === AbsenceMessage::defaultTemplate($state, null, true)
+            || $value === AbsenceMessage::defaultTemplate($state, null, false);
+    }
+
+    /**
+     * Typing (or clearing) the center's phone changes what the built-in text
+     * says, so a template the owner has not touched follows it. One they wrote
+     * themselves is left exactly as written.
+     */
+    public function updatedPhone(): void
+    {
+        foreach (['غائب' => 'absence_message', 'متأخر' => 'late_message'] as $state => $field) {
+            if (self::isDefault($this->{$field}, $state)) {
+                $this->{$field} = $this->defaultTemplate($state);
+            }
+        }
     }
 
     public function resetTemplate(string $state): void
     {
         if ($state === 'متأخر') {
-            $this->late_message = AbsenceMessage::defaultTemplate('متأخر');
+            $this->late_message = $this->defaultTemplate('متأخر');
         } else {
-            $this->absence_message = AbsenceMessage::defaultTemplate('غائب');
+            $this->absence_message = $this->defaultTemplate('غائب');
         }
     }
 
@@ -103,20 +138,25 @@ class CenterProfile extends Component
 
     protected static function storedTemplate(string $value, string $state): ?string
     {
-        $value = trim($value);
-
-        return ($value === '' || $value === AbsenceMessage::defaultTemplate($state)) ? null : $value;
+        return self::isDefault($value, $state) ? null : trim($value);
     }
 
     public function render()
     {
         $tenant = auth()->user()->tenant;
 
+        // The preview runs the message through AbsenceMessage exactly as the
+        // WhatsApp button does, with the phone currently in the form rather
+        // than the saved one — so what the owner reads here is what a parent
+        // will read, including the clause that disappears without a phone.
+        $phone = trim($this->phone);
+
         return view('livewire.settings.center-profile', [
             'canEdit' => $this->canEdit(),
+            'hasPhone' => $this->hasPhone(),
             'placeholders' => AbsenceMessage::PLACEHOLDERS,
-            'absencePreview' => AbsenceMessage::preview('غائب', $tenant, $this->absence_message),
-            'latePreview' => AbsenceMessage::preview('متأخر', $tenant, $this->late_message),
+            'absencePreview' => AbsenceMessage::preview('غائب', $tenant, $this->absence_message, $phone),
+            'latePreview' => AbsenceMessage::preview('متأخر', $tenant, $this->late_message, $phone),
         ]);
     }
 }

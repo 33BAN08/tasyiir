@@ -43,7 +43,7 @@
             <code class="ltr-nums flex-1 rounded-xl border border-ink-200 bg-ink-50 px-3 py-2.5 font-mono text-sm tracking-widest text-ink-800" dir="ltr">{{ $machineCode }}</code>
             <button type="button" class="btn-secondary shrink-0"
                 x-data
-                x-on:click="navigator.clipboard.writeText('{{ $machineCode }}'); $store.toasts.push({{ Js::from(__('تم نسخ رمز الجهاز')) }})">
+                x-on:click="window.copyText({{ Js::from($machineCode) }}).then(ok => $store.toasts.push(ok ? {{ Js::from(__('تم نسخ رمز الجهاز')) }} : {{ Js::from(__('تعذّر النسخ — انسخ الرمز يدوياً')) }}, ok ? 'success' : 'error'))">
                 <x-icon name="file-text" class="w-4 h-4" /> {{ __('نسخ') }}
             </button>
         </div>

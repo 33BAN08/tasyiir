@@ -760,5 +760,7 @@
     "معاينة": "Aperçu",
     "عند ترك النص كما هو افتراضياً، تتكيّف الصيغة تلقائياً مع جنس الطالب (ابنكم / ابنتكم).": "Si vous gardez le texte par défaut, la formulation s'accorde automatiquement au genre de l'élève.",
     "غيابات اليوم غير المُبلَّغ عنها": "Absences du jour non signalées",
-    ":count حالة بانتظار إشعار ولي الأمر.": ":count cas en attente d'un message aux parents."
+    ":count حالة بانتظار إشعار ولي الأمر.": ":count cas en attente d'un message aux parents.",
+    "أضف رقم هاتف المركز ليظهر في الرسالة": "Ajoutez le téléphone du centre pour qu'il apparaisse dans le message",
+    "تعذّر النسخ — انسخ الرمز يدوياً": "Copie impossible - copiez le code manuellement"
 }

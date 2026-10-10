@@ -31,6 +31,45 @@ document.addEventListener('alpine:init', () => {
   });
 });
 
+// Copy to clipboard, everywhere the app runs.
+//
+// navigator.clipboard only exists in a secure context, and a center reached
+// over its own LAN is plain http://192.168.x.x:8000 — so on the exact machines
+// this feature is for, the modern API is simply undefined. The old
+// execCommand('copy') path is the fallback, not the exception.
+//
+// Returns a promise resolving to true/false so callers can show a tick or not.
+window.copyText = async function copyText(text) {
+  const value = String(text ?? '');
+
+  if (window.isSecureContext && navigator.clipboard) {
+    try {
+      await navigator.clipboard.writeText(value);
+      return true;
+    } catch {
+      // Permission denied or the page lost focus — fall through.
+    }
+  }
+
+  try {
+    const area = document.createElement('textarea');
+    area.value = value;
+    // Off-screen but still focusable: display:none would make the copy a no-op.
+    area.setAttribute('readonly', '');
+    area.style.position = 'fixed';
+    area.style.top = '-1000px';
+    area.style.opacity = '0';
+    document.body.appendChild(area);
+    area.select();
+    area.setSelectionRange(0, value.length);
+    const ok = document.execCommand('copy');
+    document.body.removeChild(area);
+    return ok;
+  } catch {
+    return false;
+  }
+};
+
 // Delegate clicks on any [data-toast] element to push a mock toast — used across
 // "mock behavior" buttons (Add student, Save settings, etc.) per the Phase 1 spec.
 document.addEventListener('click', (e) => {

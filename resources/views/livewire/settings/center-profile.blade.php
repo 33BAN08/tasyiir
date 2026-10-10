@@ -13,8 +13,8 @@
             @error('tagline') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
         </div>
         <div>
-            <label class="block text-sm font-medium text-ink-700 mb-1.5">{{ __('رقم الهاتف') }}</label>
-            <input type="text" wire:model="phone" class="input ps-3 ltr-nums" placeholder="05XX-XX-XX-XX" />
+            <label for="center-phone" class="block text-sm font-medium text-ink-700 mb-1.5">{{ __('رقم الهاتف') }}</label>
+            <input type="text" id="center-phone" wire:model.live.debounce.500ms="phone" class="input ps-3 ltr-nums" placeholder="05XX-XX-XX-XX" />
             @error('phone') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
         </div>
         <div>
@@ -67,6 +67,16 @@
                     <p class="text-[11px] font-semibold text-emerald-800 mb-1">{{ __('معاينة') }}</p>
                     <p class="text-xs text-ink-700 leading-relaxed whitespace-pre-line">{{ $tpl['preview'] }}</p>
                 </div>
+
+                @unless ($hasPhone)
+                    <p class="mt-1.5 text-[11px] text-amber-700">
+                        <a href="#center-phone"
+                           x-on:click.prevent="document.getElementById('center-phone')?.focus()"
+                           class="font-semibold underline hover:text-amber-800">
+                            {{ __('أضف رقم هاتف المركز ليظهر في الرسالة') }}
+                        </a>
+                    </p>
+                @endunless
             </div>
         @endforeach
 

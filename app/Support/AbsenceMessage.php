@@ -30,6 +30,9 @@ class AbsenceMessage
 
     public const GREETING = 'السلام عليكم';
 
+    /** Day first, the way a date is read and written in Morocco. */
+    public const DATE_FORMAT = 'd/m/Y';
+
     /** Arabic weekday names — the message goes to a parent, not to the UI user. */
     public const DAYS = [
         'Sunday' => 'الأحد', 'Monday' => 'الاثنين', 'Tuesday' => 'الثلاثاء', 'Wednesday' => 'الأربعاء',
@@ -111,7 +114,7 @@ class AbsenceMessage
                 '{parent_greeting}' => self::GREETING,
                 '{group}' => (string) $group?->name,
                 '{course}' => (string) $group?->course?->name,
-                '{date}' => $date->format('Y-m-d'),
+                '{date}' => $date->format(self::DATE_FORMAT),
                 '{day}' => $day,
                 '{time}' => $time,
                 '{center}' => (string) $tenant?->name,
@@ -124,18 +127,18 @@ class AbsenceMessage
      * A made-up record for the live preview in Settings, so the owner sees
      * their wording filled in without needing a real absence.
      */
-    public static function preview(string $state, Tenant $tenant, string $template): string
+    public static function preview(string $state, Tenant $tenant, string $template, ?string $phone = null): string
     {
         return self::render($template, [
             '{student}' => 'سارة العلوي',
             '{parent_greeting}' => self::GREETING,
             '{group}' => 'English A1 - A',
             '{course}' => 'English A1',
-            '{date}' => today()->format('Y-m-d'),
+            '{date}' => today()->format(self::DATE_FORMAT),
             '{day}' => self::DAYS[today()->format('l')] ?? '',
             '{time}' => '16:00 - 17:30',
             '{center}' => $tenant->name,
-            '{center_phone}' => (string) $tenant->setting('phone'),
+            '{center_phone}' => $phone ?? (string) $tenant->setting('phone'),
         ]);
     }
 }

@@ -189,7 +189,7 @@ class AbsenceWhatsAppTest extends TestCase
         $this->assertStringContainsString('ابنكم', $boyText);
         $this->assertStringContainsString('كان غائباً', $boyText);
         $this->assertStringContainsString('English A1 - A', $boyText);
-        $this->assertStringContainsString('2026-10-07', $boyText);
+        $this->assertStringContainsString('07/10/2026', $boyText, 'day first, the way a date is read in Morocco');
         $this->assertStringContainsString('الأربعاء', $boyText, 'the weekday of that date');
         $this->assertStringContainsString('مركز النور', $boyText);
         $this->assertStringContainsString('0522334455', $boyText);
@@ -234,7 +234,7 @@ class AbsenceWhatsAppTest extends TestCase
 
         $text = AbsenceMessage::for($record, $this->tenant->fresh());
 
-        $this->assertSame('Bonjour, سارة a manqué English A1 - A le 2026-10-07. مركز النور', $text);
+        $this->assertSame('Bonjour, سارة a manqué English A1 - A le 07/10/2026. مركز النور', $text);
         $this->assertStringNotContainsString('ابنتكم', $text, 'a custom sentence is never rewritten');
     }
 
@@ -256,6 +256,66 @@ class AbsenceWhatsAppTest extends TestCase
             $this->tenant->fresh()->setting('absence_message'),
             'back to the built-in text, so later wording improvements still reach this center'
         );
+    }
+
+    public function test_the_settings_preview_reads_exactly_like_the_real_message(): void
+    {
+        $student = $this->student('سارة العلوي', ['gender' => 'female', 'guardian_phone' => '0620000002']);
+
+        $record = AttendanceRecord::create([
+            'tenant_id' => $this->tenant->id, 'student_id' => $student->id, 'group_id' => $this->group->id,
+            'date' => today()->toDateString(), 'state' => 'غائب',
+        ])->load(['student', 'group.course', 'group.scheduleSlots']);
+
+        $real = AbsenceMessage::for($record, $this->tenant);
+
+        $preview = Livewire::test(CenterProfile::class)->viewData('absencePreview');
+
+        // Same sentence, same date format, same contact clause — only the
+        // sample student, group and class time differ.
+        $this->assertStringContainsString('مركز النور', $preview);
+        $this->assertStringContainsString('0522334455', $preview);
+        $this->assertStringContainsString(today()->format('d/m/Y'), $preview);
+        $this->assertStringContainsString(today()->format('d/m/Y'), $real);
+        $this->assertStringContainsString('المرجو التواصل مع مركز النور على الرقم 0522334455', $preview);
+        $this->assertStringContainsString('المرجو التواصل مع مركز النور على الرقم 0522334455', $real);
+    }
+
+    public function test_without_a_center_phone_both_the_message_and_the_preview_drop_the_phone_clause(): void
+    {
+        $this->tenant->settings = array_merge($this->tenant->settings ?? [], ['phone' => null]);
+        $this->tenant->save();
+
+        $student = $this->student('سارة', ['gender' => 'female', 'guardian_phone' => '0620000002']);
+
+        $record = AttendanceRecord::create([
+            'tenant_id' => $this->tenant->id, 'student_id' => $student->id, 'group_id' => $this->group->id,
+            'date' => today()->toDateString(), 'state' => 'غائب',
+        ])->load(['student', 'group.course', 'group.scheduleSlots']);
+
+        $real = AbsenceMessage::for($record, $this->tenant->fresh());
+
+        $this->assertStringContainsString('المرجو التواصل مع مركز النور. شكراً.', $real);
+        $this->assertStringNotContainsString('على الرقم', $real);
+        $this->assertStringNotContainsString(' . ', $real, 'no dangling punctuation where the number was');
+
+        $component = Livewire::test(CenterProfile::class);
+
+        $this->assertStringNotContainsString('على الرقم', $component->viewData('absencePreview'));
+        $this->assertStringNotContainsString('على الرقم', $component->viewData('latePreview'));
+        $this->assertFalse($component->viewData('hasPhone'), 'the hint under the preview is shown');
+        $component->assertSee('أضف رقم هاتف المركز ليظهر في الرسالة', false);
+
+        // Typing a phone brings the clause back in the untouched default, and
+        // saving it still counts as "not customised".
+        $component->set('phone', '0522111222');
+
+        $this->assertTrue($component->viewData('hasPhone'), 'the hint is gone once a phone is entered');
+        $this->assertStringContainsString('على الرقم 0522111222', $component->viewData('absencePreview'));
+
+        $component->call('save');
+
+        $this->assertNull($this->tenant->fresh()->setting('absence_message'));
     }
 
     // ── 4. tracking ─────────────────────────────────────────────────────────
