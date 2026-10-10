@@ -10,12 +10,20 @@
             <a href="{{ route('login') }}" class="btn-secondary">{{ __('العودة إلى تسجيل الدخول') }}</a>
         </div>
     @else
-        <h1 class="text-lg font-bold text-ink-900 mb-1">{{ __('تسجيل مركز جديد') }}</h1>
-        <p class="text-sm text-ink-500 mb-6">
-            {{ \App\Support\Mode::signupRequiresApproval()
-                ? __('أدخل بيانات مركزك وحساب المسؤول. يُراجع الطلب من طرف فريق TASYIIR قبل تفعيل المركز.')
-                : __('أدخل بيانات مركزك وحساب المسؤول. يُفتح مركزك مباشرة بعد الإرسال.') }}
-        </p>
+        @if (\App\Support\Demo::enabled())
+            <span class="inline-flex items-center gap-1.5 rounded-full bg-brand-50 text-brand-700 text-xs font-bold px-3 py-1 mb-3">
+                <x-icon name="gift" class="w-3.5 h-3.5" /> {{ __('تجربة مجانية :days أيام', ['days' => config('tasyiir.demo.days')]) }}
+            </span>
+            <h1 class="text-lg font-bold text-ink-900 mb-1">{{ __('جرّب TASYIIR مجاناً') }}</h1>
+            <p class="text-sm text-ink-500 mb-6">{{ __('أنشئ حساب مركزك في دقيقة واحدة واكتشف كل الوحدات: الطلاب، الأداءات، الحضور، الجدول والتقارير. بدون بطاقة بنكية.') }}</p>
+        @else
+            <h1 class="text-lg font-bold text-ink-900 mb-1">{{ __('تسجيل مركز جديد') }}</h1>
+            <p class="text-sm text-ink-500 mb-6">
+                {{ \App\Support\Mode::signupRequiresApproval()
+                    ? __('أدخل بيانات مركزك وحساب المسؤول. يُراجع الطلب من طرف فريق TASYIIR قبل تفعيل المركز.')
+                    : __('أدخل بيانات مركزك وحساب المسؤول. يُفتح مركزك مباشرة بعد الإرسال.') }}
+            </p>
+        @endif
 
         <form wire:submit="submit" class="space-y-4">
             <div>
@@ -31,7 +39,7 @@
                     @error('owner_name') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
                 </div>
                 <div>
-                    <label for="owner_phone" class="block text-sm font-semibold text-ink-700 mb-1.5">{{ __('رقم الهاتف') }} <span class="font-normal text-ink-400">{{ __('(اختياري)') }}</span></label>
+                    <label for="owner_phone" class="block text-sm font-semibold text-ink-700 mb-1.5">{{ __('رقم الهاتف') }} @unless (\App\Support\Demo::enabled())<span class="font-normal text-ink-400">{{ __('(اختياري)') }}</span>@endunless</label>
                     <input wire:model="owner_phone" id="owner_phone" type="tel" class="input ps-3 ltr-nums" dir="ltr" autocomplete="tel" placeholder="06XX-XX-XX-XX" />
                     @error('owner_phone') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
                 </div>
@@ -64,9 +72,22 @@
                 </div>
             </div>
 
+            @if (\App\Support\Demo::enabled())
+                <label for="sample_data" class="flex items-start gap-2.5 rounded-xl border border-ink-100 bg-ink-50/60 p-3 cursor-pointer">
+                    <input wire:model="sample_data" id="sample_data" type="checkbox" class="mt-0.5 rounded border-ink-300 text-brand-600 focus:ring-brand-500" />
+                    <span class="text-sm">
+                        <span class="font-semibold text-ink-700">{{ __('املأ المركز ببيانات تجريبية') }}</span>
+                        <span class="block text-xs text-ink-400 mt-0.5">{{ __('طلاب، أساتذة، دورات وأداءات وهمية لاكتشاف البرنامج مباشرة. يمكنك حذفها لاحقاً.') }}</span>
+                    </span>
+                </label>
+            @endif
+
             <button type="submit" class="btn-primary w-full justify-center" wire:loading.attr="disabled" wire:target="submit">
-                <x-icon name="check" class="w-4 h-4" />
-                {{ \App\Support\Mode::signupRequiresApproval() ? __('إرسال طلب التسجيل') : __('إنشاء المركز والبدء') }}
+                <x-icon name="check" class="w-4 h-4" wire:loading.remove wire:target="submit" />
+                <span wire:loading.remove wire:target="submit">
+                    {{ \App\Support\Demo::enabled() ? __('ابدأ التجربة المجانية') : (\App\Support\Mode::signupRequiresApproval() ? __('إرسال طلب التسجيل') : __('إنشاء المركز والبدء')) }}
+                </span>
+                <span wire:loading wire:target="submit">{{ __('جارٍ تجهيز مركزك...') }}</span>
             </button>
         </form>
 

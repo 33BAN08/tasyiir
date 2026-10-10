@@ -49,7 +49,7 @@ const icons = [
   'trending-up', 'trending-down', 'arrow-up-right', 'arrow-down-right', 'download', 'upload',
   'user-round-plus', 'file-text', 'star', 'building-2', 'shield-check', 'globe', 'palette',
   'chevron-up', 'sliders-horizontal', 'inbox', 'wifi-off', 'server-crash', 'loader-circle',
-  'credit-card', 'wallet-cards', 'sun', 'moon', 'sparkles', 'timer', 'hash', 'id-card',
+  'credit-card', 'wallet-cards', 'sun', 'moon', 'sparkles', 'timer', 'gift', 'message-circle', 'hash', 'id-card',
   'square-check-big', 'square', 'minus', 'circle-dot', 'lightbulb', 'megaphone', 'wrench',
   'droplet', 'zap', 'package', 'briefcase-business', 'notebook-pen', 'lock', 'languages',
   'layers', 'list-checks', 'percent', 'arrow-left', 'arrow-right', 'pause', 'play', 'shield-off',

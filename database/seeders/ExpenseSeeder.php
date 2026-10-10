@@ -27,7 +27,7 @@ class ExpenseSeeder extends Seeder
         $month = now()->startOfMonth();
         $lastDay = now()->daysInMonth;
 
-        Tenant::all()->each(function (Tenant $tenant) use ($month, $lastDay) {
+        SeedScope::tenants()->each(function (Tenant $tenant) use ($month, $lastDay) {
             foreach ($this->items as $item) {
                 Expense::create([
                     'tenant_id' => $tenant->id,

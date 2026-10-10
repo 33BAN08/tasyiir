@@ -18,7 +18,12 @@
                 <p class="font-extrabold truncate">TASYIIR <span class="text-ink-400 font-semibold">· {{ __('لوحة المنصة') }}</span></p>
                 <p class="text-[11px] text-ink-400 truncate">{{ auth()->user()?->name }} — {{ __('مسؤول المنصة') }}</p>
             </div>
-            <form method="POST" action="{{ route('logout') }}" class="ms-auto">
+            <nav class="ms-auto flex items-center gap-1 text-sm">
+                @foreach ([['admin.centers', __('المراكز')], ['admin.signups', __('الطلبات')]] as [$r, $label])
+                    <a href="{{ route($r) }}" @class(['px-3 py-1.5 rounded-lg font-semibold', 'bg-white/10 text-white' => request()->routeIs($r), 'text-ink-300 hover:text-white' => ! request()->routeIs($r)])>{{ $label }}</a>
+                @endforeach
+            </nav>
+            <form method="POST" action="{{ route('logout') }}">
                 @csrf
                 <button type="submit" class="btn-icon text-ink-300 hover:text-white hover:bg-white/10" aria-label="{{ __('تسجيل الخروج') }}" title="{{ __('تسجيل الخروج') }}">
                     <x-icon name="log-out" class="w-[18px] h-[18px]" />

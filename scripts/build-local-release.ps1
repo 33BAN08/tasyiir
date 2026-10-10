@@ -64,10 +64,10 @@ New-Item -ItemType Directory -Force -Path $stagingApp | Out-Null
 
 Step 'Copying application files'
 $excludeDirs = @('.git', '.claude', '.github', 'node_modules', 'tests', 'release', 'marketing',
-                 'tools', 'scripts\php-runtime', 'scripts\local',
+                 'tools', 'demo-server', 'scripts\demo', 'scripts\php-runtime', 'scripts\local',
                  'storage\logs', 'storage\backups',
                  'storage\framework\sessions', 'storage\framework\views', 'storage\framework\cache')
-$excludeFiles = @('.env', '.env.example', 'database.sqlite', 'NOTES.md', '*.log', '*.zip',
+$excludeFiles = @('.env', '.env.demo', '.env.example', 'database.sqlite', 'NOTES.md', '*.log', '*.zip',
                   'phpunit.xml', 'tasyiir-build-*.zip')
 # Note: the compiled caches in bootstrap/cache are NOT excluded by name here.
 # robocopy /XF matches a bare filename in every folder it walks, so naming

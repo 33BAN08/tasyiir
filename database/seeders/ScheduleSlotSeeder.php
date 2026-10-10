@@ -28,7 +28,7 @@ class ScheduleSlotSeeder extends Seeder
 
     public function run(): void
     {
-        Tenant::all()->each(function (Tenant $tenant) {
+        SeedScope::tenants()->each(function (Tenant $tenant) {
             Group::withoutGlobalScopes()->where('tenant_id', $tenant->id)->orderBy('id')->get()
                 ->each(function (Group $group) use ($tenant) {
                     ['days' => $days, 'time' => $time] = self::parse($group->schedule);

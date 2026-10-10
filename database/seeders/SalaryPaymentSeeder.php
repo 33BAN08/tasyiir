@@ -17,7 +17,7 @@ class SalaryPaymentSeeder extends Seeder
 
     public function run(): void
     {
-        Teacher::withoutGlobalScopes()->orderBy('id')->get()->each(function (Teacher $teacher, int $i) {
+        SeedScope::apply(Teacher::withoutGlobalScopes())->orderBy('id')->get()->each(function (Teacher $teacher, int $i) {
             $row = SalaryPayment::refreshFor($teacher);
             $row->paid = (int) round($row->salary * $this->ratios[$i % count($this->ratios)]);
             $row->settle();

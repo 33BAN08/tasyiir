@@ -26,3 +26,7 @@ Thumbs.db
 /release
 /storage/backups
 /scripts/php-runtime
+
+# Online demo (scripts/demo): its own env, database and tunnel binary
+.env.demo
+/demo-server

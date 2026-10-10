@@ -21,7 +21,7 @@ class StaffUserSeeder extends Seeder
             ['name' => 'خالد الصقلي', 'local' => 'accountant', 'role' => Permissions::ACCOUNTANT_ROLE],
         ];
 
-        Tenant::all()->each(function (Tenant $tenant) use ($staff) {
+        SeedScope::tenants()->each(function (Tenant $tenant) use ($staff) {
             foreach ($staff as $member) {
                 $user = User::firstOrCreate(
                     ['email' => "{$member['local']}@{$tenant->slug}.test"],

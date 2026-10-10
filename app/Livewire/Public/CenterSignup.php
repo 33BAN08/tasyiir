@@ -4,6 +4,8 @@ namespace App\Livewire\Public;
 
 use App\Models\CenterSignupRequest;
 use App\Services\CenterProvisioner;
+use App\Services\DemoData;
+use App\Support\Demo;
 use App\Support\Mode;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -38,6 +40,9 @@ class CenterSignup extends Component
 
     public bool $submitted = false;
 
+    /** Online demo: start with sample students, courses, payments… */
+    public bool $sample_data = true;
+
     protected function rules(): array
     {
         return [
@@ -52,7 +57,8 @@ class CenterSignup extends Component
                     Rule::unique('center_signup_requests', 'owner_email')->where(fn ($q) => $q->where('status', '!=', 'rejected')),
                 ]),
             ],
-            'owner_phone' => ['nullable', 'string', 'max:30'],
+            // The demo needs a number to follow up with the prospect.
+            'owner_phone' => [Demo::enabled() ? 'required' : 'nullable', 'string', 'max:30'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ];
     }
@@ -100,7 +106,7 @@ class CenterSignup extends Component
         }
 
         // Instant signup: the center is live as soon as the form is submitted.
-        ['owner' => $owner] = app(CenterProvisioner::class)->provision(
+        ['tenant' => $tenant, 'owner' => $owner] = app(CenterProvisioner::class)->provision(
             $data['center_name'],
             $data['owner_name'],
             $data['owner_email'],
@@ -109,13 +115,20 @@ class CenterSignup extends Component
             app()->getLocale(),
         );
 
+        // Before Auth::login: the seeders must not run under the owner's tenant scope.
+        if (Demo::enabled() && $this->sample_data) {
+            app(DemoData::class)->fill($tenant);
+        }
+
         RateLimiter::clear($this->throttleKey());
 
         Auth::login($owner);
         Session::regenerate();
 
         return redirect()->route('dashboard')
-            ->with('toast', __('تم إنشاء مركزك بنجاح. مرحباً بك في TASYIIR!'));
+            ->with('toast', Demo::enabled()
+                ? __('مرحباً بك! نسختك التجريبية المجانية مفعّلة لمدة :days أيام.', ['days' => config('tasyiir.demo.days')])
+                : __('تم إنشاء مركزك بنجاح. مرحباً بك في TASYIIR!'));
     }
 
     /** Public form: cap attempts per IP. */
@@ -143,6 +156,6 @@ class CenterSignup extends Component
     {
         return view('livewire.public.center-signup')
             ->layout('layouts.guest', ['maxWidth' => 'max-w-lg'])
-            ->title(__('تسجيل مركز جديد'));
+            ->title(Demo::enabled() ? __('جرّب TASYIIR مجاناً') : __('تسجيل مركز جديد'));
     }
 }

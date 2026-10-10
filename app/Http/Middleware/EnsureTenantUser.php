@@ -23,7 +23,7 @@ class EnsureTenantUser
             // The back office only exists in the hosted edition.
             abort_unless(Route::has('admin.signups'), 403);
 
-            return redirect()->route('admin.signups');
+            return redirect(\App\Support\Demo::enabled() ? '/admin/centers' : route('admin.signups'));
         }
 
         // A tenant-less non-admin account should not exist; never let one in.

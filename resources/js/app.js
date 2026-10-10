@@ -15,6 +15,15 @@ document.addEventListener('alpine:init', () => {
     },
   });
 
+  // `session('toast')` flash rendered once on a full page load. Read here, not
+  // in livewire:init: Livewire fires that event BEFORE Alpine registers its
+  // stores, so the store did not exist yet and the toast was silently lost.
+  if (window.__flashToast) {
+    const flash = window.__flashToast;
+    window.__flashToast = null;
+    queueMicrotask(() => Alpine.store('toasts').push(flash));
+  }
+
   // Global command-palette / search modal visibility store.
   Alpine.store('ui', {
     sidebarOpen: false,
@@ -33,8 +42,7 @@ document.addEventListener('click', (e) => {
   }
 });
 
-// Real toasts dispatched from Livewire components (Students CRUD, etc.) and
-// from a `session('toast')` flash message rendered once on full page loads.
+// Real toasts dispatched from Livewire components (Students CRUD, etc.).
 document.addEventListener('livewire:init', () => {
   Livewire.on('toast', ({ message, type }) => {
     window.Alpine.store('toasts').push(message, type || 'success');
@@ -51,9 +59,4 @@ document.addEventListener('livewire:init', () => {
       }
     });
   });
-
-  if (window.__flashToast) {
-    window.Alpine.store('toasts').push(window.__flashToast);
-    window.__flashToast = null;
-  }
 });

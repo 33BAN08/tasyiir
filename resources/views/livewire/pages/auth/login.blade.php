@@ -25,7 +25,7 @@ new #[Layout('layouts.guest')] class extends Component
         }
 
         // Platform admins live in /admin; everyone else in the tenant app.
-        $home = auth()->user()->isPlatformAdmin() ? route('admin.signups', absolute: false) : route('dashboard', absolute: false);
+        $home = auth()->user()->isPlatformAdmin() ? (\App\Support\Demo::enabled() ? '/admin/centers' : route('admin.signups', absolute: false)) : route('dashboard', absolute: false);
 
         $this->redirectIntended(default: $home);
     }
@@ -74,7 +74,11 @@ new #[Layout('layouts.guest')] class extends Component
         </button>
     </form>
 
-    @if (Route::has('register-center'))
+    @if (Route::has('register-center') && \App\Support\Demo::enabled())
+        <a href="{{ route('register-center') }}" class="mt-5 flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-brand-200 bg-brand-50/60 px-4 py-3 text-sm font-semibold text-brand-700 hover:bg-brand-50">
+            <x-icon name="gift" class="w-4 h-4" /> {{ __('ليس لديك حساب؟ جرّب TASYIIR مجاناً :days أيام', ['days' => config('tasyiir.demo.days')]) }}
+        </a>
+    @elseif (Route::has('register-center'))
         <p class="mt-5 text-center text-xs text-ink-400">{{ __('مركز جديد؟') }} <a href="{{ route('register-center') }}" class="font-semibold text-brand-600 hover:text-brand-700">{{ __('سجّل مركزك') }}</a></p>
     @endif
 </div>

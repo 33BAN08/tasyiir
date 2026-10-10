@@ -7,9 +7,11 @@ use App\Http\Middleware\EnsureUserIsActive;
 use App\Http\Middleware\RequireSetup;
 use App\Http\Middleware\RunDailyBackup;
 use App\Http\Middleware\SetLocale;
+use App\Http\Middleware\TrustProxiesFromConfig;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Middleware\TrustProxies;
 use Spatie\Permission\Middleware\PermissionMiddleware;
 use Spatie\Permission\Middleware\RoleMiddleware;
 use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
@@ -21,6 +23,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Proxy list read from config at request time (tasyiir.trusted_proxies).
+        $middleware->replace(TrustProxies::class, TrustProxiesFromConfig::class);
+
         // Prepended: Laravel sorts `auth` by middleware priority, so an appended
         // guard would run after it and a fresh install would be sent to /login
         // instead of the first-run wizard.

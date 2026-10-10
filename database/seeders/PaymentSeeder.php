@@ -16,7 +16,7 @@ class PaymentSeeder extends Seeder
 {
     public function run(): void
     {
-        Enrollment::withoutGlobalScopes()->orderBy('id')->get()->each(function (Enrollment $enrollment, int $i) {
+        SeedScope::apply(Enrollment::withoutGlobalScopes())->orderBy('id')->get()->each(function (Enrollment $enrollment, int $i) {
             $paid = $enrollment->paid;
             if ($paid <= 0) {
                 return;

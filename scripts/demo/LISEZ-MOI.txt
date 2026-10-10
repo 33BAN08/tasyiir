@@ -1,0 +1,19 @@
+TASYIIR - DEMO EN LIGNE (essai gratuit 7 jours)
+================================================
+
+Demarrer : double-cliquez sur scripts\demo\start-demo.bat
+  - 1re fois : il demande votre numero WhatsApp, puis un email + mot de
+    passe pour VOTRE compte admin, et telecharge cloudflared (gratuit).
+  - Il affiche le lien a partager (deja copie : Ctrl+V dans WhatsApp,
+    Instagram...). Le lien est aussi dans demo-server\LIEN-DEMO.txt
+  - Votre espace admin s'ouvre : liste des centres inscrits, leur numero,
+    bouton WhatsApp, bouton "+7 jours".
+
+Arreter : appuyez sur Entree dans la fenetre, ou stop-demo.bat
+
+A savoir
+  - Le PC doit rester allume et connecte (desactivez la mise en veille).
+  - Le lien change a chaque redemarrage : partagez le nouveau.
+  - Les donnees de la demo sont dans demo-server\ et .env.demo (jamais
+    dans git ni dans les zips clients). Supprimez demo-server\demo.sqlite
+    pour tout remettre a zero.

@@ -28,7 +28,7 @@ class NotificationSeeder extends Seeder
 
     public function run(): void
     {
-        Tenant::all()->each(function (Tenant $tenant) {
+        SeedScope::tenants()->each(function (Tenant $tenant) {
             foreach ($this->items as $item) {
                 $at = now()->sub($item['ago']);
 

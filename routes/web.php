@@ -7,6 +7,7 @@ use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\StatisticsController;
 use App\Http\Controllers\StudentController;
 use App\Http\Middleware\SetLocale;
+use App\Livewire\Admin\DemoCenters;
 use App\Livewire\Admin\SignupRequests;
 use App\Livewire\Attendance\Index as AttendanceIndex;
 use App\Livewire\Courses\Index as CoursesIndex;
@@ -21,11 +22,15 @@ use App\Livewire\Salaries\Index as SalariesIndex;
 use App\Livewire\Schedule\Index as ScheduleIndex;
 use App\Livewire\Students\Index as StudentsIndex;
 use App\Livewire\Teachers\Index as TeachersIndex;
+use App\Support\Demo;
 use App\Support\Mode;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::redirect('/', '/dashboard');
+// The online demo sends first-time visitors straight to the free signup.
+Route::get('/', function () {
+    return redirect(Demo::enabled() && ! auth()->check() ? '/register-center' : '/dashboard');
+});
 
 // Language switcher for pages rendered before login (guest layout). Same logic
 // as /settings/language, which stays as the authenticated Settings entry point.
@@ -53,8 +58,9 @@ if (Mode::isLocal()) {
     Route::get('/register-center', CenterSignup::class)->middleware('guest')->name('register-center');
 
     Route::middleware(['auth', 'platform-admin'])->prefix('admin')->group(function () {
-        Route::redirect('/', '/admin/signups');
+        Route::get('/', fn () => redirect(Demo::enabled() ? '/admin/centers' : '/admin/signups'));
         Route::get('/signups', SignupRequests::class)->name('admin.signups');
+        Route::get('/centers', DemoCenters::class)->name('admin.centers');
     });
 }
 
@@ -83,6 +89,17 @@ Route::middleware(['auth', 'tenant-user'])->group(function () {
 
         return back();
     })->name('settings.language');
+
+    // Online demo: shown once a center's free trial is over.
+    Route::get('/demo-expired', function (Request $request) {
+        $tenant = $request->user()->tenant;
+
+        if (! Demo::expired($tenant)) {
+            return redirect()->route('dashboard');
+        }
+
+        return view('demo.expired', ['tenant' => $tenant]);
+    })->name('demo.expired');
 
     // Backup / import (owner-level, like the other sensitive Settings panels).
     Route::middleware('permission:manage-settings')->group(function () {

@@ -38,6 +38,39 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Online demo (hosted edition only)
+    |--------------------------------------------------------------------------
+    |
+    | A public trial server: anyone can register a center at /register-center
+    | and use it for `days` days, optionally pre-filled with sample data. When
+    | the trial ends the modules stop opening and the owner is shown a
+    | "contact us on WhatsApp" page. Ignored in local mode.
+    |
+    */
+
+    'demo' => [
+        'enabled' => (bool) env('TASYIIR_DEMO', false),
+        'days' => (int) env('TASYIIR_DEMO_DAYS', 7),
+        // International format without "+" or spaces, e.g. 212612345678.
+        'whatsapp' => preg_replace('/\D+/', '', (string) env('TASYIIR_DEMO_WHATSAPP', '')),
+        'price' => env('TASYIIR_DEMO_PRICE', '500 DH'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Trusted proxies
+    |--------------------------------------------------------------------------
+    |
+    | Set to "*" when the app is reached through a reverse proxy or tunnel
+    | (Cloudflare Tunnel, nginx) so HTTPS links and visitor IPs are correct.
+    | Leave empty for a plain local install.
+    |
+    */
+
+    'trusted_proxies' => env('TASYIIR_TRUSTED_PROXIES'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Database backups (local edition)
     |--------------------------------------------------------------------------
     |

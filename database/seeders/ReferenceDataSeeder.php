@@ -50,7 +50,7 @@ class ReferenceDataSeeder extends Seeder
 
     public function run(): void
     {
-        Tenant::all()->each(function (Tenant $tenant) {
+        SeedScope::tenants()->each(function (Tenant $tenant) {
             $teachers = collect($this->teacherNames)->map(fn ($t, $i) => Teacher::create([
                 'tenant_id' => $tenant->id,
                 'name' => $t['name'],

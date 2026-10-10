@@ -22,7 +22,7 @@ class AttendanceSeeder extends Seeder
 
     public function run(): void
     {
-        Tenant::all()->each(function (Tenant $tenant) {
+        SeedScope::tenants()->each(function (Tenant $tenant) {
             $groups = Group::withoutGlobalScopes()->where('tenant_id', $tenant->id)->with('students')->get();
 
             foreach ($groups as $group) {

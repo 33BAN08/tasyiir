@@ -24,7 +24,7 @@ class StudentSeeder extends Seeder
 
     public function run(): void
     {
-        Tenant::all()->each(function (Tenant $tenant) {
+        SeedScope::tenants()->each(function (Tenant $tenant) {
             $groups = Group::where('tenant_id', $tenant->id)->get();
 
             for ($i = 0; $i < $this->perTenant; $i++) {

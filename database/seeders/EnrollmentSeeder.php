@@ -18,7 +18,7 @@ class EnrollmentSeeder extends Seeder
 
     public function run(): void
     {
-        Tenant::all()->each(function (Tenant $tenant) {
+        SeedScope::tenants()->each(function (Tenant $tenant) {
             Student::withoutGlobalScopes()
                 ->where('tenant_id', $tenant->id)
                 ->with('course')

@@ -46,12 +46,12 @@ Step 'Copying application files'
 # tools\ holds the licence private key and never ships; scripts\local and the
 # PHP runtime belong to the Windows package only.
 $excludeDirs = @('.git', '.claude', '.github', 'node_modules', 'tests', 'release', 'marketing',
-                 'tools', 'scripts\php-runtime', 'scripts\local',
+                 'tools', 'demo-server', 'scripts\demo', 'scripts\php-runtime', 'scripts\local',
                  'storage\logs', 'storage\backups',
                  'storage\framework\sessions', 'storage\framework\views', 'storage\framework\cache')
 # Same caution as the local build: robocopy /XF matches a bare filename in every
 # folder it walks, so never name a file that also exists inside vendor\.
-$excludeFiles = @('.env', 'database.sqlite', 'NOTES.md', '*.log', '*.zip', 'phpunit.xml')
+$excludeFiles = @('.env', '.env.demo', 'database.sqlite', 'NOTES.md', '*.log', '*.zip', 'phpunit.xml')
 
 $robocopyArgs = @($root, $staging, '/E', '/NFL', '/NDL', '/NJH', '/NJS', '/NP')
 $robocopyArgs += '/XD'; $robocopyArgs += ($excludeDirs | ForEach-Object { Join-Path $root $_ })

@@ -17,6 +17,7 @@
     <x-sidebar />
 
     <div class="lg:ps-72 min-h-full flex flex-col">
+        <x-demo-banner />
         <x-header />
 
         <main class="flex-1 w-full max-w-[1600px] mx-auto p-4 sm:p-6 lg:p-8">
